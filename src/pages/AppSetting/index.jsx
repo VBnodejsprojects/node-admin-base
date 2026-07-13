@@ -25,25 +25,28 @@ const AppSetting = () => {
       chatSupportNumber: settings?.chatSupportNumber || "",
       contactSupportNumber: settings?.contactSupportNumber ?? "",
       whatsappSupportNumber: settings?.whatsappSupportNumber ?? "",
-      support: settings?.support || "",
       email: settings?.email || "",
       address: settings?.address || "",
       pincode: settings?.pincode || "",
 
       // App active toggles
-      isAppActive: settings?.isAppActive ?? true,
       isAppActiveUserApp: settings?.isAppActiveUserApp ?? true,
       isAppActiveVendorApp: settings?.isAppActiveVendorApp ?? true,
+      isAppActiveDeliveryPartnerApp: settings?.isAppActiveDeliveryPartnerApp ?? true,
 
       // App versions & mandatory-update flags
       userAppVersion: settings?.userAppVersion || "0.0.0",
       vendorAppVersion: settings?.vendorAppVersion || "0.0.0",
+      deliveryPartnerAppVersion: settings?.deliveryPartnerAppVersion || "0.0.0",
       userIOSAppVersion: settings?.userIOSAppVersion || "0.0.0",
       vendorIOSAppVersion: settings?.vendorIOSAppVersion || "0.0.0",
+      deliveryPartnerIOSAppVersion: settings?.deliveryPartnerIOSAppVersion || "0.0.0",
       isUserAppUpdateMandatory: settings?.isUserAppUpdateMandatory ?? false,
       isVendorAppUpdateMandatory: settings?.isVendorAppUpdateMandatory ?? false,
+      isDeliveryPartnerAppUpdateMandatory: settings?.isDeliveryPartnerAppUpdateMandatory ?? false,
       isUserIOSAppUpdateMandatory: settings?.isUserIOSAppUpdateMandatory ?? false,
       isVendorIOSAppUpdateMandatory: settings?.isVendorIOSAppUpdateMandatory ?? false,
+      isDeliveryPartnerIOSAppUpdateMandatory: settings?.isDeliveryPartnerIOSAppUpdateMandatory ?? false,
 
       // Charges & fees
       platformFee: settings?.platformFee ?? 0,
@@ -56,6 +59,8 @@ const AppSetting = () => {
       instaUrl: settings?.instaUrl || "",
       telegramUrl: settings?.telegramUrl || "",
       youtubeUrl: settings?.youtubeUrl || "",
+      linkedinUrl: settings?.linkedinUrl || "",
+      twitterUrl: settings?.twitterUrl || "",
     },
 
     onSubmit: async (values) => {
@@ -135,7 +140,6 @@ const AppSetting = () => {
           {textField("chatSupportNumber", "Chat Support Number")}
           {textField("contactSupportNumber", "Contact Support Number", "number")}
           {textField("whatsappSupportNumber", "WhatsApp Support Number", "number")}
-          {textField("support", "Support")}
           {textField("email", "Email")}
           {textField("address", "Address")}
           {textField("pincode", "Pincode")}
@@ -147,6 +151,8 @@ const AppSetting = () => {
           {textField("userIOSAppVersion", "User iOS App Version")}
           {textField("vendorAppVersion", "Vendor App Version")}
           {textField("vendorIOSAppVersion", "Vendor iOS App Version")}
+          {textField("deliveryPartnerAppVersion", "Delivery Partner App Version")}
+          {textField("deliveryPartnerIOSAppVersion", "Delivery Partner iOS App Version")}
         </Row>
 
         <h5 className="mb-3 mt-2">Charges & Fees</h5>
@@ -163,13 +169,15 @@ const AppSetting = () => {
           {textField("instaUrl", "Instagram URL")}
           {textField("telegramUrl", "Telegram URL")}
           {textField("youtubeUrl", "YouTube URL")}
+          {textField("linkedinUrl", "LinkedIn URL")}
+          {textField("twitterUrl", "Twitter (X) URL")}
         </Row>
 
         <h5 className="mb-3 mt-2">App Status</h5>
         <Row>
-          {toggleField("isAppActive", "App Active")}
           {toggleField("isAppActiveUserApp", "User App Active")}
           {toggleField("isAppActiveVendorApp", "Vendor App Active")}
+          {toggleField("isAppActiveDeliveryPartnerApp", "Delivery Partner App Active")}
         </Row>
 
         <h5 className="mb-3 mt-2">Mandatory Update</h5>
@@ -178,6 +186,8 @@ const AppSetting = () => {
           {toggleField("isUserIOSAppUpdateMandatory", "User iOS Update Mandatory")}
           {toggleField("isVendorAppUpdateMandatory", "Vendor App Update Mandatory")}
           {toggleField("isVendorIOSAppUpdateMandatory", "Vendor iOS Update Mandatory")}
+          {toggleField("isDeliveryPartnerAppUpdateMandatory", "Delivery Partner App Update Mandatory")}
+          {toggleField("isDeliveryPartnerIOSAppUpdateMandatory", "Delivery Partner iOS Update Mandatory")}
         </Row>
 
         <Row>

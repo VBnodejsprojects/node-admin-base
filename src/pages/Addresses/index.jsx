@@ -27,6 +27,7 @@ import Flatpickr from "react-flatpickr";
 import { getAllAddress } from "../../helpers/addressApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
 
@@ -187,9 +188,15 @@ const Addresses = () => {
     //   accessorKey: "no",
     // },
     {
-      header: "User Name",
+      header: "User",
       accessorKey: "username",
-      cell: ({ row }) => row.original.username, // Assuming userName is a string
+      cell: ({ row }) => (
+        <EntityCell
+          entity={row.original.user}
+          fallbackName={row.original.username}
+          fallbackMobile={row.original.mobileNo}
+        />
+      ),
     },
     {
       header: "Address Type",

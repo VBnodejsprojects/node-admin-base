@@ -24,6 +24,7 @@ import {
 import { getAllVendorsListForFilter, getAllUsersListForFilter } from "../../helpers/filterApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
 import DynamicFormFields from "../../components/Common/DynamicFormFields";
@@ -200,7 +201,7 @@ const Coupons = () => {
         {
             header: "Target",
             accessorKey: "model",
-            cell: ({ row }) => row.original.model?.name || "-",
+            cell: ({ row }) => (row.original.model ? <EntityCell entity={row.original.model} /> : "All"),
         },
         { header: "Per User", accessorKey: "couponPerUser" },
         {

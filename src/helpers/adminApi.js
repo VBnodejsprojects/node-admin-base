@@ -16,6 +16,16 @@ export const adminLogin = async (username, password) => {
   return response;
 };
 
+// PUT /admin/change-password — body: { currentPassword, newPassword, confirmPassword }
+export const changeAdminPassword = async (data) => {
+  try {
+    const response = await put("admin/change-password", data, { headers });
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const updateStatus = async (
   id,
   status,

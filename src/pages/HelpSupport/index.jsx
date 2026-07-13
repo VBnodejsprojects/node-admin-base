@@ -23,6 +23,7 @@ import {
 } from "../../helpers/help-supportApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
 import AddEditHelpSupport from "./AddEditHelpSupport";
@@ -43,6 +44,7 @@ const HelpSupport = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [modelTypeFilter, setModelTypeFilter] = useState("");
 
   const [selectedFile, setSelectedFile] = useState();
 
@@ -115,6 +117,7 @@ const HelpSupport = () => {
       from: startDate,
       to: endDate,
       status: statusFilter,
+      createdByModel: modelTypeFilter,
     });
     setData(response?.helpSupports || []);
     setTotalCount(response?.total || 0);
@@ -144,7 +147,7 @@ const HelpSupport = () => {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize, globalFilter, startDate, endDate, statusFilter]);
+  }, [pageIndex, pageSize, globalFilter, startDate, endDate, statusFilter, modelTypeFilter]);
 
   const columns = [
     {
@@ -163,38 +166,15 @@ const HelpSupport = () => {
     },
     { header: "UserType", accessorKey: "createdByModel", cell: ({ row }) => row.original.createdByModel || "N/A" },
     {
-      header: "User name",
+      header: "Raised By",
       accessorKey: "createdBy",
-      cell: ({ row }) => {
-        const createdBy = row?.original?.createdBy;
-
-        return (
-          <div>
-            <div>{createdBy?.name || "N/A"}</div>
-            {/* <div className="text-mute small">{createdBy?.mobileNo || "N/A"}</div> */}
-          </div>
-        );
-      },
+      cell: ({ row }) => <EntityCell entity={row.original.createdBy} showImage={false} />,
     },
 
     {
       header: "Solution",
       accessorKey: "response",
       cell: ({ row }) => row.original.response || "N/A"
-    },
-    {
-      header: "Mobile No",
-      accessorKey: "createdBy",
-      cell: ({ row }) => {
-        const createdBy = row?.original?.createdBy;
-
-        return (
-          <div>
-            {/* <div>{createdBy?.name || "N/A"}</div> */}
-            <div className="text-mute">{createdBy?.mobileNo || "N/A"}</div>
-          </div>
-        );
-      },
     },
     {
       header: "Subject",
@@ -351,12 +331,25 @@ const HelpSupport = () => {
             type="select"
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-            style={{ width: 180 }}
+            style={{ width: 160 }}
           >
             <option value="">All</option>
             <option value="pending">Pending</option>
             <option value="resolved">Resolved</option>
             <option value="rejected">Rejected</option>
+          </Input>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <label className="mb-0">Model Type:</label>
+          <Input
+            type="select"
+            value={modelTypeFilter}
+            onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+            style={{ width: 160 }}
+          >
+            <option value="">All</option>
+            <option value="User">User</option>
+            <option value="Vendor">Vendor</option>
           </Input>
         </div>
         <Col md={3}>

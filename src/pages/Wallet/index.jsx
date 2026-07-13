@@ -12,6 +12,7 @@ import {
     ModalBody,
     Form,
     Label,
+    Input,
     Badge,
 } from "reactstrap";
 
@@ -22,6 +23,7 @@ import {
 import { getAllVendorsListForFilter, getAllUsersListForFilter } from "../../helpers/filterApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DynamicFormFields from "../../components/Common/DynamicFormFields";
 import { CustomStyles } from "../../components/Common/MultiSelect";
@@ -44,6 +46,9 @@ const WalletTransactions = () => {
     // Owner filter is OPTIONAL — the page loads ALL transactions by default.
     const [ownerRole, setOwnerRole] = useState(""); // "" (all) | "User" | "Vendor"
     const [ownerId, setOwnerId] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [txnTypeFilter, setTxnTypeFilter] = useState("");
 
     const validation = useFormik({
         enableReinitialize: true,
@@ -97,6 +102,9 @@ const WalletTransactions = () => {
             role: ownerRole ? ownerRole.toLowerCase() : undefined, // "user" | "vendor"
             page: pageIndex,
             limit: pageSize,
+            from: fromDate,
+            to: toDate,
+            transactionType: txnTypeFilter,
         });
         setData(res?.data || []);
         setTotalCount(res?.pagination?.total || 0);
@@ -116,7 +124,7 @@ const WalletTransactions = () => {
         {
             header: "Entity",
             accessorKey: "modelId.name",
-            cell: ({ row }) => row.original.modelId?.name || "N/A",
+            cell: ({ row }) => <EntityCell entity={row.original.modelId} />,
         },
         {
             header: "Transaction Type",
@@ -194,12 +202,21 @@ const WalletTransactions = () => {
 
     useEffect(() => {
         fetchData();
-    }, [pageIndex, pageSize, ownerId, ownerRole]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageIndex, pageSize, ownerId, ownerRole, fromDate, toDate, txnTypeFilter]);
 
     const ownerOptions = (ownerRole === "Vendor" ? vendorList : userList).map((o) => ({
         value: o._id,
         label: `${o.name || ""} (${o.mobileNo || ""})`,
     }));
+
+    // Add-transaction modal: entity list (with mobile) + the selected entity's balance
+    const modalEntityList = validation.values.modelType === "Vendor" ? vendorList : userList;
+    const selectedEntityOptions = modalEntityList.map((o) => ({
+        value: o._id,
+        label: `${o.name || ""} (${o.mobileNo || ""})`,
+    }));
+    const selectedEntity = modalEntityList.find((o) => o._id === validation.values.modelId) || null;
 
     return (
         <div className="page-content">
@@ -220,7 +237,7 @@ const WalletTransactions = () => {
                     </select>
                 </Col>
                 {ownerRole && (
-                    <Col md={4}>
+                    <Col md={3}>
                         <Label>Select {ownerRole} (optional)</Label>
                         <Select
                             classNamePrefix="select"
@@ -233,6 +250,34 @@ const WalletTransactions = () => {
                         />
                     </Col>
                 )}
+                <Col md={2}>
+                    <Label>From Date</Label>
+                    <Input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => { setFromDate(e.target.value); setPageIndex(0); }}
+                    />
+                </Col>
+                <Col md={2}>
+                    <Label>To Date</Label>
+                    <Input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => { setToDate(e.target.value); setPageIndex(0); }}
+                    />
+                </Col>
+                <Col md={2}>
+                    <Label>Transaction Type</Label>
+                    <Input
+                        type="select"
+                        value={txnTypeFilter}
+                        onChange={(e) => { setTxnTypeFilter(e.target.value); setPageIndex(0); }}
+                    >
+                        <option value="">All</option>
+                        <option value="credit">Credit</option>
+                        <option value="debit">Debit</option>
+                    </Input>
+                </Col>
                 <Col md={2}>
                     <Button color="success" onClick={() => setOpen(true)} className="w-100">
                         Add Transaction
@@ -279,20 +324,19 @@ const WalletTransactions = () => {
                                 classNamePrefix="select"
                                 isClearable
                                 isSearchable
-                                value={
-                                    (validation.values.modelType === "Vendor" ? vendorList : userList)
-                                        .map((o) => ({ value: o._id, label: o.name }))
-                                        .find((opt) => opt.value === validation.values.modelId) || null
-                                }
+                                value={selectedEntityOptions.find((opt) => opt.value === validation.values.modelId) || null}
                                 onChange={(value) => validation.setFieldValue("modelId", value ? value.value : null)}
-                                options={(validation.values.modelType === "Vendor" ? vendorList : userList).map((o) => ({
-                                    value: o._id,
-                                    label: o.name,
-                                }))}
+                                options={selectedEntityOptions}
                                 styles={CustomStyles}
                             />
                             {validation.touched.modelId && validation.errors.modelId && (
                                 <div className="text-danger small mt-1">{validation.errors.modelId}</div>
+                            )}
+                            {selectedEntity && (
+                                <div className="mt-2 p-2 rounded bg-light d-flex justify-content-between">
+                                    <span className="text-muted">Current Balance</span>
+                                    <span className="fw-semibold">₹ {Number(selectedEntity.walletAmount || 0).toFixed(2)}</span>
+                                </div>
                             )}
                         </div>
 

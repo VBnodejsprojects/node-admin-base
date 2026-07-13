@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 
 import { getAllUser, addUser, updateUser } from "../../helpers/userApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditUser from "./AddEditUser";
 
@@ -86,19 +87,11 @@ const Users = () => {
 
   const columns = [
     {
-      header: "Profile Image",
-      accessorKey: "profileImage",
-      cell: ({ row }) => (
-        <img
-          src={row.original.profileImage || "vite.svg"}
-          alt="profile"
-          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-        />
-      ),
+      header: "User",
+      accessorKey: "name",
+      cell: ({ row }) => <EntityCell entity={row.original} />,
     },
-    { header: "Name", accessorKey: "name" },
     { header: "Email", accessorKey: "email" },
-    { header: "Mobile No", accessorKey: "mobileNo" },
     { header: "Gender", accessorKey: "gender" },
     {
       header: "Wallet Amount",

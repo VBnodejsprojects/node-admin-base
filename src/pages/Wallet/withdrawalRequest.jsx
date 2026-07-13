@@ -18,6 +18,7 @@ import {
 } from "../../helpers/walletTransactionApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 
 const WithdrawalRequest = () => {
@@ -27,6 +28,7 @@ const WithdrawalRequest = () => {
     const [pageSize, setPageSize] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("pending");
+    const [modelTypeFilter, setModelTypeFilter] = useState("");
 
     // Review modal
     const [open, setOpen] = useState(false);
@@ -40,6 +42,7 @@ const WithdrawalRequest = () => {
             page: pageIndex,
             limit: pageSize,
             status: statusFilter,
+            modelType: modelTypeFilter,
         });
         setData(res?.data || []);
         setTotalCount(res?.pagination?.total || 0);
@@ -89,12 +92,7 @@ const WithdrawalRequest = () => {
         {
             header: "Requested By",
             accessorKey: "modelId.name",
-            cell: ({ row }) => row.original.modelId?.name || "N/A",
-        },
-        {
-            header: "Mobile",
-            accessorKey: "modelId.mobileNo",
-            cell: ({ row }) => row.original.modelId?.mobileNo || "N/A",
+            cell: ({ row }) => <EntityCell entity={row.original.modelId} />,
         },
         {
             header: "Wallet Balance",
@@ -125,7 +123,8 @@ const WithdrawalRequest = () => {
 
     useEffect(() => {
         fetchData();
-    }, [pageIndex, pageSize, globalFilter, statusFilter]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pageIndex, pageSize, globalFilter, statusFilter, modelTypeFilter]);
 
     const owner = selected?.modelId || {};
     const balance = Number(owner.walletAmount);
@@ -142,18 +141,33 @@ const WithdrawalRequest = () => {
         <div className="page-content">
             <h4><i className="bx bxs-wallet" /> Withdrawal Requests</h4>
 
-            <div className="d-flex align-items-center gap-2 mb-3">
-                <label className="mb-0">Status:</label>
-                <select
-                    className="form-select"
-                    style={{ width: 220 }}
-                    value={statusFilter}
-                    onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-                >
-                    <option value="pending">Pending</option>
-                    <option value="completed">Approved</option>
-                    <option value="failed">Rejected</option>
-                </select>
+            <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <div className="d-flex align-items-center gap-2">
+                    <label className="mb-0">Status:</label>
+                    <select
+                        className="form-select"
+                        style={{ width: 180 }}
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                    >
+                        <option value="pending">Pending</option>
+                        <option value="completed">Approved</option>
+                        <option value="failed">Rejected</option>
+                    </select>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                    <label className="mb-0">Model Type:</label>
+                    <select
+                        className="form-select"
+                        style={{ width: 180 }}
+                        value={modelTypeFilter}
+                        onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+                    >
+                        <option value="">All</option>
+                        <option value="User">User</option>
+                        <option value="Vendor">Vendor</option>
+                    </select>
+                </div>
             </div>
 
             <DataTableContainer

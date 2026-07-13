@@ -19,12 +19,13 @@ export const addWalletTransaction = async (data) => {
 // POST /wallet/transaction/list/forAdmin — reads from req.body: { id, role, page, limit, from, to }
 // `id`   = wallet owner id (a User or Vendor _id)
 // `role` = "user" | "vendor"
-export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10, from = "", to = "" }) => {
+export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10, from = "", to = "", transactionType = "" }) => {
     page = page + 1;
     try {
         const body = { id, role, page, limit };
         if (from) body.from = from;
         if (to) body.to = to;
+        if (transactionType) body.transactionType = transactionType;
 
         const response = await post(`wallet/transaction/list/forAdmin`, body, { headers });
         return response;
@@ -35,7 +36,7 @@ export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10,
 };
 
 // GET /wallet/transaction/withdrawals — pending withdrawal requests (admin)
-export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10, status = "pending" }) => {
+export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10, status = "pending", modelType = "" }) => {
     page = page + 1;
     try {
         const params = new URLSearchParams({
@@ -44,6 +45,7 @@ export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10,
             limit: limit.toString(),
             status,
         });
+        if (modelType) params.append("modelType", modelType);
         const response = await get(`wallet/transaction/withdrawals?${params}`, { headers });
         return response;
     } catch (error) {

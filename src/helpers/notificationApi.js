@@ -18,7 +18,7 @@ export const sendNotification = async (data) => {
 };
 
 // GET /notification/list/forAdmin — supports search, page, limit, from, to
-export const getAllNotifications = async ({ search = "", page = 1, limit = 10, from = "", to = "" }) => {
+export const getAllNotifications = async ({ search = "", page = 1, limit = 10, from = "", to = "", modelName = "" }) => {
     page = page + 1;
     try {
         const params = new URLSearchParams({
@@ -28,6 +28,7 @@ export const getAllNotifications = async ({ search = "", page = 1, limit = 10, f
         });
         if (from) params.append("from", from);
         if (to) params.append("to", to);
+        if (modelName) params.append("modelName", modelName);
 
         const response = await get(`notification/list/forAdmin?${params}`, { headers });
         return response;

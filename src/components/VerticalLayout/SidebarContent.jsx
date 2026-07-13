@@ -249,10 +249,19 @@ const SidebarContent = (props) => {
                   <Link to="/vendor-settings">{props.t("Vendor Settings")}</Link>
                 </li>
                 <li>
+                  <Link to="/delivery-partner-settings">{props.t("Delivery Partner Settings")}</Link>
+                </li>
+                <li>
+                  <Link to="/website-settings">{props.t("Website Settings")}</Link>
+                </li>
+                <li>
                   <Link to="/user-faq">{props.t("User FAQ's")}</Link>
                 </li>
                 <li>
                   <Link to="/vendor-faq">{props.t("Vendor FAQ's")}</Link>
+                </li>
+                <li>
+                  <Link to="/delivery-partner-faq">{props.t("Delivery Partner FAQ's")}</Link>
                 </li>
                 <li>
                   <Link to="/app-setting">{props.t("App Setting")}</Link>

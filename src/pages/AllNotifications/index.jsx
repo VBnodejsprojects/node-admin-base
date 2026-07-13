@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { getAllNotifications } from "../../helpers/notificationApi";
 
 // Backend notification.modelType — 1:AllUser, 2:SingleUser, 3:AllVendor, 4:SingleVendor
@@ -11,6 +12,7 @@ const AllNotifications = () => {
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
+    const [modelNameFilter, setModelNameFilter] = useState("");
 
     const fetchData = useCallback(async () => {
         try {
@@ -18,6 +20,7 @@ const AllNotifications = () => {
                 page: pageIndex,
                 limit: pageSize,
                 search: globalFilter || "",
+                modelName: modelNameFilter,
             });
 
             const list = response?.notifications || [];
@@ -28,7 +31,7 @@ const AllNotifications = () => {
             setNotifications([]);
             setTotalCount(0);
         }
-    }, [pageIndex, pageSize, globalFilter]);
+    }, [pageIndex, pageSize, globalFilter, modelNameFilter]);
 
     useEffect(() => {
         fetchData();
@@ -58,7 +61,7 @@ const AllNotifications = () => {
         {
             header: "Recipient",
             accessorKey: "model",
-            cell: ({ row }) => row.original.model?.name || "All",
+            cell: ({ row }) => (row.original.model ? <EntityCell entity={row.original.model} /> : "All"),
         },
         {
             header: "Sent At",
@@ -73,6 +76,20 @@ const AllNotifications = () => {
     return (
         <div className="page-content">
             <h4><i className="bx bx-bell" /> All Notifications</h4>
+
+            <div className="d-flex align-items-center gap-2 mb-3">
+                <label className="mb-0">Model Type:</label>
+                <select
+                    className="form-select"
+                    style={{ width: 200 }}
+                    value={modelNameFilter}
+                    onChange={(e) => { setModelNameFilter(e.target.value); setPageIndex(0); }}
+                >
+                    <option value="">All</option>
+                    <option value="User">User</option>
+                    <option value="Vendor">Vendor</option>
+                </select>
+            </div>
 
             <DataTableContainer
                 columns={columns}

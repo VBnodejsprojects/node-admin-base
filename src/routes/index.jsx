@@ -9,6 +9,7 @@ import Login from "../pages/Authentication/Login";
 import Logout from "../pages/Authentication/Logout";
 import Register from "../pages/Authentication/Register";
 import ForgetPwd from "../pages/Authentication/ForgetPassword";
+import ChangePassword from "../pages/Authentication/ChangePassword";
 
 // Dashboard  (backend: /homePage/dashboard/stats)
 import Dashboard from "../pages/Dashboard/index";
@@ -34,8 +35,11 @@ import AllNotifications from "../pages/AllNotifications";    // backend: /notifi
 // Settings pages (all backed by backend: /settings)
 import UserSettings from "../pages/UserSettings";
 import VendorSettings from "../pages/VendorSettings";
+import DeliveryPartnerSettings from "../pages/DeliveryPartnerSettings";
+import WebsiteSettings from "../pages/WebsiteSettings";
 import UserFAQ from "../pages/FAQs/userFaq";
 import VendorFAQ from "../pages/FAQs/vendorFAQ";
+import DeliveryPartnerFAQ from "../pages/FAQs/deliveryPartnerFAQ";
 import AppSetting from "../pages/AppSetting";
 
 const authProtectedRoutes = [
@@ -62,12 +66,16 @@ const authProtectedRoutes = [
   // Settings
   { path: "/user-settings", component: <UserSettings /> },
   { path: "/vendor-settings", component: <VendorSettings /> },
+  { path: "/delivery-partner-settings", component: <DeliveryPartnerSettings /> },
+  { path: "/website-settings", component: <WebsiteSettings /> },
   { path: "/user-faq", component: <UserFAQ /> },
   { path: "/vendor-faq", component: <VendorFAQ /> },
+  { path: "/delivery-partner-faq", component: <DeliveryPartnerFAQ /> },
   { path: "/app-setting", component: <AppSetting /> },
 
   // Profile
   { path: "/profile", component: <UserProfile /> },
+  { path: "/change-password", component: <ChangePassword /> },
 
   { path: "", exact: true, component: <Navigate to="/dashboard" /> },
 ];

@@ -35,7 +35,7 @@ export const updateVendorRequest = async (data, vendorId) => {
   }
 };
 
-export const getAllVendor = async ({ search = "", page = 1, limit = 10, storeType, status }) => {
+export const getAllVendor = async ({ search = "", page = 1, limit = 10, status, accountStatus }) => {
   page = page + 1;
   try {
     const params = new URLSearchParams({
@@ -44,11 +44,11 @@ export const getAllVendor = async ({ search = "", page = 1, limit = 10, storeTyp
       limit: limit.toString(),
     });
 
-    if (storeType !== undefined) {
-      params.append("storeType", storeType);
-    }
     if (status) {
       params.append("status", status);
+    }
+    if (accountStatus) {
+      params.append("accountStatus", accountStatus);
     }
 
     const response = await get(`vendor/list/forAdmin?${params}`, { headers });

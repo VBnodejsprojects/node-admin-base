@@ -99,6 +99,14 @@ const ProfileMenu = (props) => {
             <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
             <span>{props.t("Logout")}</span>
           </li>
+          <div className="dropdown-divider" />
+          <li
+            className="dropdown-item cursor-pointer"
+            onClick={() => navigate("/change-password")}
+          >
+            <i className="bx bx-lock-alt font-size-16 align-middle me-1" />
+            <span>{props.t("Change Password")}</span>
+          </li>
         </DropdownMenu>
       </Dropdown>
     </React.Fragment>

@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 
 import { getAllVendor, updateVendor } from "../../helpers/vendorApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditVendor from "./AddEditVendor";
 
@@ -14,6 +15,7 @@ const Vendors = () => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [accountStatusFilter, setAccountStatusFilter] = useState("");
 
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -85,6 +87,7 @@ const Vendors = () => {
         page: pageIndex,
         limit: pageSize,
         status: statusFilter,
+        accountStatus: accountStatusFilter,
       });
 
       if (response?.type === "success") {
@@ -127,19 +130,11 @@ const Vendors = () => {
 
   const columns = [
     {
-      header: "Profile Image",
-      accessorKey: "profileImage",
-      cell: ({ row }) => (
-        <img
-          src={row.original.profileImage || "vite.svg"}
-          alt="profile"
-          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-        />
-      ),
+      header: "Vendor",
+      accessorKey: "name",
+      cell: ({ row }) => <EntityCell entity={row.original} />,
     },
-    { header: "Name", accessorKey: "name", cell: ({ row }) => row.original.name || "N/A" },
     { header: "Email", accessorKey: "email", cell: ({ row }) => row.original.email || "N/A" },
-    { header: "Mobile No", accessorKey: "mobileNo", cell: ({ row }) => row.original.mobileNo || "N/A" },
     { header: "City", accessorKey: "city", cell: ({ row }) => row.original.city || "N/A" },
     { header: "State", accessorKey: "state", cell: ({ row }) => row.original.state || "N/A" },
     {
@@ -232,26 +227,45 @@ const Vendors = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, globalFilter, statusFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIndex, pageSize, globalFilter, statusFilter, accountStatusFilter]);
 
   return (
     <div className="page-content">
       <h4><i className="bx bx-store-alt" /> Vendors</h4>
 
-      <div className="d-flex align-items-center gap-2 mb-3">
-        <label className="mb-0">Status:</label>
-        <select
-          className="form-select"
-          style={{ width: 220 }}
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-        >
-          <option value="">All</option>
-          <option value="Incomplete">Incomplete</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
+        <div className="d-flex align-items-center gap-2">
+          <label className="mb-0">Approval:</label>
+          <select
+            className="form-select"
+            style={{ width: 190 }}
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+          >
+            <option value="">All</option>
+            <option value="Incomplete">Incomplete</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div className="d-flex align-items-center gap-2">
+          <label className="mb-0">Account:</label>
+          <select
+            className="form-select"
+            style={{ width: 190 }}
+            value={accountStatusFilter}
+            onChange={(e) => { setAccountStatusFilter(e.target.value); setPageIndex(0); }}
+          >
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="blocked">Blocked</option>
+            <option value="verified">Verified</option>
+            <option value="deleted">Deleted</option>
+          </select>
+        </div>
       </div>
 
       <DataTableContainer
