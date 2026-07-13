@@ -50,6 +50,7 @@ const WalletTransactions = () => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [txnTypeFilter, setTxnTypeFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
 
     const validation = useFormik({
         enableReinitialize: true,
@@ -106,6 +107,7 @@ const WalletTransactions = () => {
             from: fromDate,
             to: toDate,
             transactionType: txnTypeFilter,
+            status: statusFilter,
         });
         setData(res?.data || []);
         setTotalCount(res?.pagination?.total || 0);
@@ -204,7 +206,7 @@ const WalletTransactions = () => {
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageIndex, pageSize, ownerId, ownerRole, fromDate, toDate, txnTypeFilter]);
+    }, [pageIndex, pageSize, ownerId, ownerRole, fromDate, toDate, txnTypeFilter, statusFilter]);
 
     const ownerOptions = (ownerRole === "Vendor" ? vendorList : userList).map((o) => ({
         value: o._id,
@@ -284,6 +286,18 @@ const WalletTransactions = () => {
                                 <option value="">All</option>
                                 <option value="credit">Credit</option>
                                 <option value="debit">Debit</option>
+                            </Input>
+                        </FilterField>
+                        <FilterField label="Status" width={150}>
+                            <Input
+                                type="select"
+                                value={statusFilter}
+                                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="failed">Failed</option>
                             </Input>
                         </FilterField>
                     </>

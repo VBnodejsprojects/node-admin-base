@@ -19,13 +19,14 @@ export const addWalletTransaction = async (data) => {
 // POST /wallet/transaction/list/forAdmin — reads from req.body: { id, role, page, limit, from, to }
 // `id`   = wallet owner id (a User or Vendor _id)
 // `role` = "user" | "vendor"
-export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10, from = "", to = "", transactionType = "" }) => {
+export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10, from = "", to = "", transactionType = "", status = "" }) => {
     page = page + 1;
     try {
         const body = { id, role, page, limit };
         if (from) body.from = from;
         if (to) body.to = to;
         if (transactionType) body.transactionType = transactionType;
+        if (status) body.status = status;
 
         const response = await post(`wallet/transaction/list/forAdmin`, body, { headers });
         return response;

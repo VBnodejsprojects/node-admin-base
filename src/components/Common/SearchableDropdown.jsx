@@ -53,7 +53,7 @@ const SearchableDropdown = ({
         <div className="position-relative" ref={dropdownRef}>
             <input
                 type="text"
-                className={inputClassName}
+                className={`${inputClassName} pe-5 text-truncate`}
                 placeholder={placeholder}
                 value={searchTerm}
                 onChange={(e) => {
@@ -61,6 +61,7 @@ const SearchableDropdown = ({
                     setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
+                title={searchTerm}
             />
             <span
                 className="position-absolute top-50 end-0 translate-middle-y me-2"
@@ -69,7 +70,10 @@ const SearchableDropdown = ({
                 <i className="bx bx-chevron-down text-black fs-3"></i>
             </span>
             {showDropdown && (
-                <ul className="dropdown-menu show w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
+                <ul
+                    className="dropdown-menu show w-100"
+                    style={{ maxHeight: 240, overflowY: "auto", minWidth: 260 }}
+                >
                     {finalOptions.length ? (
                         finalOptions.map((opt) => (
                             <li key={opt._id || "all"}>
@@ -77,9 +81,12 @@ const SearchableDropdown = ({
                                     className="dropdown-item"
                                     type="button"
                                     onClick={() => handleSelect(opt)}
+                                    style={{ whiteSpace: "normal" }}
                                 >
                                     {opt[displayField]}
-                                    {subField && opt[subField] && ` (${opt[subField]})`}
+                                    {subField && opt[subField] ? (
+                                        <span className="text-muted"> ({opt[subField]})</span>
+                                    ) : null}
                                 </button>
                             </li>
                         ))

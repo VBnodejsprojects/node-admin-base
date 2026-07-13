@@ -149,7 +149,7 @@ const DataTableContainer = ({
         {filters}
 
         {isUserFilter && (
-          <FilterField label="User" width={200}>
+          <FilterField label="User" width={230}>
             <SearchableDropdown
               options={userOptions}
               onChange={(value) => setSelectedUser(value)}
@@ -163,7 +163,7 @@ const DataTableContainer = ({
         )}
 
         {isVendorFilter && (
-          <FilterField label="Vendor" width={200}>
+          <FilterField label="Vendor" width={230}>
             <SearchableDropdown
               options={vendorOptions}
               onChange={(value) => setSelectedVendor(value)}
