@@ -23,6 +23,7 @@ import {
 import { getAllVendorsListForFilter, getAllUsersListForFilter } from "../../helpers/filterApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DynamicFormFields from "../../components/Common/DynamicFormFields";
@@ -222,69 +223,6 @@ const WalletTransactions = () => {
         <div className="page-content">
             <h4><i className="bx bxs-wallet" /> Wallet Transactions</h4>
 
-            {/* Optional owner filter — the page shows ALL transactions by default */}
-            <Row className="mb-3 g-2 align-items-end">
-                <Col md={3}>
-                    <Label>Owner Type</Label>
-                    <select
-                        className="form-select"
-                        value={ownerRole}
-                        onChange={(e) => { setOwnerRole(e.target.value); setPageIndex(0); }}
-                    >
-                        <option value="">All</option>
-                        <option value="User">User</option>
-                        <option value="Vendor">Vendor</option>
-                    </select>
-                </Col>
-                {ownerRole && (
-                    <Col md={3}>
-                        <Label>Select {ownerRole} (optional)</Label>
-                        <Select
-                            classNamePrefix="select"
-                            isClearable
-                            isSearchable
-                            value={ownerOptions.find((o) => o.value === ownerId) || null}
-                            onChange={(value) => { setOwnerId(value ? value.value : ""); setPageIndex(0); }}
-                            options={ownerOptions}
-                            styles={CustomStyles}
-                        />
-                    </Col>
-                )}
-                <Col md={2}>
-                    <Label>From Date</Label>
-                    <Input
-                        type="date"
-                        value={fromDate}
-                        onChange={(e) => { setFromDate(e.target.value); setPageIndex(0); }}
-                    />
-                </Col>
-                <Col md={2}>
-                    <Label>To Date</Label>
-                    <Input
-                        type="date"
-                        value={toDate}
-                        onChange={(e) => { setToDate(e.target.value); setPageIndex(0); }}
-                    />
-                </Col>
-                <Col md={2}>
-                    <Label>Transaction Type</Label>
-                    <Input
-                        type="select"
-                        value={txnTypeFilter}
-                        onChange={(e) => { setTxnTypeFilter(e.target.value); setPageIndex(0); }}
-                    >
-                        <option value="">All</option>
-                        <option value="credit">Credit</option>
-                        <option value="debit">Debit</option>
-                    </Input>
-                </Col>
-                <Col md={2}>
-                    <Button color="success" onClick={() => setOpen(true)} className="w-100">
-                        Add Transaction
-                    </Button>
-                </Col>
-            </Row>
-
             <DataTableContainer
                 columns={columns}
                 data={data}
@@ -297,8 +235,64 @@ const WalletTransactions = () => {
                 setPageSize={setPageSize}
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
+                filters={
+                    <>
+                        <FilterField label="Owner Type" width={140}>
+                            <select
+                                className="form-select"
+                                value={ownerRole}
+                                onChange={(e) => { setOwnerRole(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                <option value="User">User</option>
+                                <option value="Vendor">Vendor</option>
+                            </select>
+                        </FilterField>
+                        {ownerRole && (
+                            <FilterField label={`Select ${ownerRole}`} width={220}>
+                                <Select
+                                    classNamePrefix="select"
+                                    isClearable
+                                    isSearchable
+                                    value={ownerOptions.find((o) => o.value === ownerId) || null}
+                                    onChange={(value) => { setOwnerId(value ? value.value : ""); setPageIndex(0); }}
+                                    options={ownerOptions}
+                                    styles={CustomStyles}
+                                />
+                            </FilterField>
+                        )}
+                        <FilterField label="From Date" width={150}>
+                            <Input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => { setFromDate(e.target.value); setPageIndex(0); }}
+                            />
+                        </FilterField>
+                        <FilterField label="To Date" width={150}>
+                            <Input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => { setToDate(e.target.value); setPageIndex(0); }}
+                            />
+                        </FilterField>
+                        <FilterField label="Transaction Type" width={150}>
+                            <Input
+                                type="select"
+                                value={txnTypeFilter}
+                                onChange={(e) => { setTxnTypeFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                <option value="credit">Credit</option>
+                                <option value="debit">Debit</option>
+                            </Input>
+                        </FilterField>
+                    </>
+                }
                 isGlobalFilter={false}
-                isAddButton={false}
+                isAddButton={true}
+                buttonName="Add Transaction"
+                buttonClass="btn btn-success"
+                handleClick={() => setOpen(true)}
                 isPagination={true}
                 isCustomPageSize={true}
                 tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"

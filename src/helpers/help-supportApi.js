@@ -33,7 +33,7 @@ export const updateHelpSupport = async (data, helpsupportId) => {
 };
 
 // GET /helpsupport/list/forAdmin — supports search, page, limit, from, to, status
-export const getAllHelpSupport = async ({ search = "", page = 1, limit = 10, from = "", to = "", status = "", createdByModel = "" }) => {
+export const getAllHelpSupport = async ({ search = "", page = 1, limit = 10, from = "", to = "", status = "", createdByModel = "", createdBy = "" }) => {
   page = page + 1;
   try {
     const params = new URLSearchParams({
@@ -45,6 +45,7 @@ export const getAllHelpSupport = async ({ search = "", page = 1, limit = 10, fro
     if (to) params.append("to", to);
     if (status) params.append("status", status);
     if (createdByModel) params.append("createdByModel", createdByModel);
+    if (createdBy) params.append("createdBy", createdBy);
 
     const response = await get(`helpsupport/list/forAdmin?${params}`, {
       headers,

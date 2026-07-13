@@ -7,7 +7,8 @@ const SearchableDropdown = ({
     displayField = "name",
     subField,
     value,
-    allLabel = "All"
+    allLabel = "All",
+    inputClassName = "form-control mb-2"
 }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
@@ -52,7 +53,7 @@ const SearchableDropdown = ({
         <div className="position-relative" ref={dropdownRef}>
             <input
                 type="text"
-                className="form-control mb-2"
+                className={inputClassName}
                 placeholder={placeholder}
                 value={searchTerm}
                 onChange={(e) => {

@@ -23,6 +23,7 @@ import {
 } from "../../helpers/help-supportApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
@@ -45,6 +46,9 @@ const HelpSupport = () => {
   const [endDate, setEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [modelTypeFilter, setModelTypeFilter] = useState("");
+  // Particular user/vendor filter (mutually exclusive)
+  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedVendor, setSelectedVendor] = useState("");
 
   const [selectedFile, setSelectedFile] = useState();
 
@@ -109,6 +113,9 @@ const HelpSupport = () => {
     }
   };
 
+  // A specific user OR vendor id narrows to that entity's tickets.
+  const selectedEntityId = selectedUser || selectedVendor;
+
   const fetchData = async () => {
     const response = await getAllHelpSupport({
       search: globalFilter,
@@ -118,10 +125,15 @@ const HelpSupport = () => {
       to: endDate,
       status: statusFilter,
       createdByModel: modelTypeFilter,
+      createdBy: selectedEntityId,
     });
     setData(response?.helpSupports || []);
     setTotalCount(response?.total || 0);
   };
+
+  // Keep the two entity pickers mutually exclusive.
+  const handleSelectUser = (id) => { setSelectedUser(id); setSelectedVendor(""); setPageIndex(0); };
+  const handleSelectVendor = (id) => { setSelectedVendor(id); setSelectedUser(""); setPageIndex(0); };
 
   const onClickDelete = (data) => {
     setHelpSupport(data);
@@ -147,7 +159,7 @@ const HelpSupport = () => {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize, globalFilter, startDate, endDate, statusFilter, modelTypeFilter]);
+  }, [pageIndex, pageSize, globalFilter, startDate, endDate, statusFilter, modelTypeFilter, selectedUser, selectedVendor]);
 
   const columns = [
     {
@@ -324,54 +336,6 @@ const HelpSupport = () => {
       />
       <h4><i className="bx bx-help-circle" /> Help & Support</h4>
 
-      <div className="d-flex gap-3 mb-3 align-items-end">
-        <div className="d-flex align-items-center gap-2">
-          <label className="mb-0">Status:</label>
-          <Input
-            type="select"
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-            style={{ width: 160 }}
-          >
-            <option value="">All</option>
-            <option value="pending">Pending</option>
-            <option value="resolved">Resolved</option>
-            <option value="rejected">Rejected</option>
-          </Input>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <label className="mb-0">Model Type:</label>
-          <Input
-            type="select"
-            value={modelTypeFilter}
-            onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
-            style={{ width: 160 }}
-          >
-            <option value="">All</option>
-            <option value="User">User</option>
-            <option value="Vendor">Vendor</option>
-          </Input>
-        </div>
-        <Col md={3}>
-          <Label>Start Date :</Label>
-          <Input
-            name="startDate"
-            type="date"
-            value={startDate}
-            onChange={(e) => { setStartDate(e.target.value); setPageIndex(0); }}
-          />
-        </Col>
-        <Col md={3}>
-          <Label>End Date :</Label>
-          <Input
-            name="endDate"
-            type="date"
-            value={endDate}
-            onChange={(e) => { setEndDate(e.target.value); setPageIndex(0); }}
-          />
-        </Col>
-      </div>
-
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}
@@ -384,6 +348,55 @@ const HelpSupport = () => {
         setPageSize={setPageSize}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        filters={
+          <>
+            <FilterField label="Status" width={150}>
+              <Input
+                type="select"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="resolved">Resolved</option>
+                <option value="rejected">Rejected</option>
+              </Input>
+            </FilterField>
+            <FilterField label="Model Type" width={150}>
+              <Input
+                type="select"
+                value={modelTypeFilter}
+                onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                <option value="User">User</option>
+                <option value="Vendor">Vendor</option>
+              </Input>
+            </FilterField>
+            <FilterField label="Start Date" width={160}>
+              <Input
+                name="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => { setStartDate(e.target.value); setPageIndex(0); }}
+              />
+            </FilterField>
+            <FilterField label="End Date" width={160}>
+              <Input
+                name="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => { setEndDate(e.target.value); setPageIndex(0); }}
+              />
+            </FilterField>
+          </>
+        }
+        selectedUser={selectedUser}
+        setSelectedUser={handleSelectUser}
+        selectedVendor={selectedVendor}
+        setSelectedVendor={handleSelectVendor}
+        isUserFilter={true}
+        isVendorFilter={true}
         isGlobalFilter={true}
         isAddButton={false}
         isPagination={true}

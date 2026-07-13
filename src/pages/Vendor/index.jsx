@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 
 import { getAllVendor, updateVendor } from "../../helpers/vendorApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditVendor from "./AddEditVendor";
@@ -39,8 +40,10 @@ const Vendors = () => {
       state: vendor?.state || "",
       country: vendor?.country || "",
       pincode: vendor?.pincode || "",
-      lat: vendor?.lat ?? "",
-      lng: vendor?.lng ?? "",
+      accountHolderName: vendor?.accountHolderName || "",
+      bankName: vendor?.bankName || "",
+      accountNumber: vendor?.accountNumber || "",
+      ifscCode: vendor?.ifscCode || "",
       status: vendor?.status || "",
       reasonForRejection: vendor?.reasonForRejection || "",
       isActive: vendor?.isActive ?? true,
@@ -182,47 +185,61 @@ const Vendors = () => {
     },
   ];
 
-  const formFields = [
-    { name: "name", label: "Name", type: "text", required: true },
-    { name: "email", label: "Email", type: "text" },
-    { name: "mobileNo", label: "Mobile No", type: "text", required: true },
+  // Grouped fields. Identity, contact and location are read-only (managed by the
+  // vendor themselves); only Bank Details and Status/Approval are admin-editable.
+  const fieldGroups = [
     {
-      name: "gender",
-      label: "Gender",
-      type: "select",
-      options: [
-        { key: "male", label: "Male" },
-        { key: "female", label: "Female" },
-        { key: "other", label: "Other" },
+      title: "Basic Information",
+      fields: [
+        { name: "name", label: "Name", type: "text", required: true },
+        { name: "email", label: "Email", type: "text" },
+        { name: "mobileNo", label: "Mobile No", type: "text", required: true },
+        { name: "gender", label: "Gender", type: "text", readOnly: true },
+        { name: "dateOfBirth", label: "Date of Birth", type: "text", readOnly: true },
+        { name: "language", label: "Language", type: "text", readOnly: true },
       ],
     },
-    { name: "dateOfBirth", label: "Date of Birth", type: "date" },
-    { name: "language", label: "Language", type: "text" },
-    { name: "address", label: "Address", type: "text" },
-    { name: "manualAddress", label: "Manual Address", type: "text" },
-    { name: "city", label: "City", type: "text" },
-    { name: "state", label: "State", type: "text" },
-    { name: "country", label: "Country", type: "text" },
-    { name: "pincode", label: "Pincode", type: "text" },
-    { name: "lat", label: "Latitude", type: "number" },
-    { name: "lng", label: "Longitude", type: "number" },
-    // Approval / status controls (admin-only)
     {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { key: "Incomplete", label: "Incomplete" },
-        { key: "pending", label: "Pending" },
-        { key: "approved", label: "Approved" },
-        { key: "rejected", label: "Rejected" },
+      title: "Location",
+      fields: [
+        { name: "address", label: "Address", type: "text", readOnly: true, fullWidth: true },
+        { name: "manualAddress", label: "Manual Address", type: "text", readOnly: true, fullWidth: true },
+        { name: "city", label: "City", type: "text", readOnly: true },
+        { name: "state", label: "State", type: "text", readOnly: true },
+        { name: "country", label: "Country", type: "text", readOnly: true },
+        { name: "pincode", label: "Pincode", type: "text", readOnly: true },
       ],
     },
-    { name: "reasonForRejection", label: "Reason For Rejection", type: "text" },
-    { name: "isActive", label: "Active", type: "select", isBoolean: true, options: [{ key: true, label: "Yes" }, { key: false, label: "No" }] },
-    { name: "isVerified", label: "Verified", type: "select", isBoolean: true, options: [{ key: true, label: "Yes" }, { key: false, label: "No" }] },
-    { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true, options: [{ key: true, label: "Yes" }, { key: false, label: "No" }] },
-    { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true, options: [{ key: true, label: "Yes" }, { key: false, label: "No" }] },
+    {
+      title: "Bank Details",
+      fields: [
+        { name: "accountHolderName", label: "Account Holder Name", type: "text", readOnly: true },
+        { name: "bankName", label: "Bank Name", type: "text", readOnly: true },
+        { name: "accountNumber", label: "Account Number", type: "text", readOnly: true },
+        { name: "ifscCode", label: "IFSC Code", type: "text", readOnly: true },
+      ],
+    },
+    {
+      title: "Status & Approval",
+      fields: [
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: [
+            { key: "Incomplete", label: "Incomplete" },
+            { key: "pending", label: "Pending" },
+            { key: "approved", label: "Approved" },
+            { key: "rejected", label: "Rejected" },
+          ],
+        },
+        { name: "reasonForRejection", label: "Reason For Rejection", type: "text", fullWidth: true },
+        { name: "isActive", label: "Active", type: "select", isBoolean: true },
+        { name: "isVerified", label: "Verified", type: "select", isBoolean: true },
+        { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true },
+        { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true },
+      ],
+    },
   ];
 
   useEffect(() => {
@@ -233,40 +250,6 @@ const Vendors = () => {
   return (
     <div className="page-content">
       <h4><i className="bx bx-store-alt" /> Vendors</h4>
-
-      <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
-        <div className="d-flex align-items-center gap-2">
-          <label className="mb-0">Approval:</label>
-          <select
-            className="form-select"
-            style={{ width: 190 }}
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-          >
-            <option value="">All</option>
-            <option value="Incomplete">Incomplete</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <label className="mb-0">Account:</label>
-          <select
-            className="form-select"
-            style={{ width: 190 }}
-            value={accountStatusFilter}
-            onChange={(e) => { setAccountStatusFilter(e.target.value); setPageIndex(0); }}
-          >
-            <option value="">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="blocked">Blocked</option>
-            <option value="verified">Verified</option>
-            <option value="deleted">Deleted</option>
-          </select>
-        </div>
-      </div>
 
       <DataTableContainer
         columns={columns}
@@ -280,6 +263,37 @@ const Vendors = () => {
         setPageSize={setPageSize}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        filters={
+          <>
+            <FilterField label="Approval">
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                <option value="Incomplete">Incomplete</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </FilterField>
+            <FilterField label="Account">
+              <select
+                className="form-select"
+                value={accountStatusFilter}
+                onChange={(e) => { setAccountStatusFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="blocked">Blocked</option>
+                <option value="verified">Verified</option>
+                <option value="deleted">Deleted</option>
+              </select>
+            </FilterField>
+          </>
+        }
         isGlobalFilter={true}
         isAddButton={false}
         isPagination={true}
@@ -294,9 +308,7 @@ const Vendors = () => {
         toggle={toggle}
         isEdit={isEdit}
         validation={validation}
-        formFields={formFields}
-        setSelectedFiles={setSelectedFiles}
-        selectedFiles={selectedFiles}
+        fieldGroups={fieldGroups}
       />
     </div>
   );

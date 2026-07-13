@@ -2,50 +2,44 @@
 import React from "react";
 import {
   Button,
-  Col,
-  Row,
   Modal,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   Form,
-  Label,
 } from "reactstrap";
 
-import DynamicFormFields from "../../components/Common/DynamicFormFields";
+import FormFieldsGrid from "../../components/Common/FormFieldsGrid";
 
-const AddEditUser = ({ open, toggle, isEdit, validation, formFields }) => {
+const AddEditUser = ({ open, toggle, isEdit, validation, fieldGroups }) => {
+  const formId = "user-edit-form";
   return (
-    <Modal
-      isOpen={open}
-      toggle={toggle}
-      size="lg"
-      contentClassName="app-redesign-modal"
-    >
+    <Modal isOpen={open} toggle={toggle} size="lg" scrollable centered>
       <ModalHeader toggle={toggle} tag="h4">
+        <i className="bx bx-user me-2" />
         {isEdit ? "Edit User" : "Add User"}
       </ModalHeader>
-      <ModalBody>
+      <ModalBody className="bg-light">
         <Form
+          id={formId}
           onSubmit={(e) => {
             e.preventDefault();
             validation.handleSubmit();
             return false;
           }}
         >
-          <DynamicFormFields formFields={formFields} validation={validation} />
-
-          <Row className="mt-3">
-            <Col className="d-flex gap-3 flex-row-reverse">
-              <Button color="success" type="submit" className="save-user">
-                Save
-              </Button>
-              <Button color="danger" className="save-user" onClick={toggle}>
-                Cancel
-              </Button>
-            </Col>
-          </Row>
+          <FormFieldsGrid groups={fieldGroups} validation={validation} />
         </Form>
       </ModalBody>
+      <ModalFooter>
+        <Button color="light" onClick={toggle}>
+          Cancel
+        </Button>
+        <Button color="success" type="submit" form={formId}>
+          <i className="bx bx-save me-1" />
+          Save Changes
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

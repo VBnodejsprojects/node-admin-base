@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 
 import { getAllUser, addUser, updateUser } from "../../helpers/userApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditUser from "./AddEditUser";
@@ -160,33 +161,46 @@ const Users = () => {
   // Fields accepted by the backend:
   //  - add:    POST /user/add/byAdmin  → name, mobileNo, email, gender, dateOfBirth, language
   //  - update: PUT  /user/profile/:id  → the above + status flags (admin-only)
-  const statusSelect = [
-    { key: true, label: "Yes" },
-    { key: false, label: "No" },
-  ];
-  const formFields = [
-    { name: "name", label: "Name", type: "text", required: true },
-    { name: "email", label: "Email", type: "email", required: false },
-    { name: "mobileNo", label: "Mobile No", type: "text", required: true },
+  //
+  // On EDIT, identity/profile is read-only (the user owns it) and only the status
+  // flags are editable. On ADD, the basic fields are editable so admins can create.
+  const fieldGroups = [
     {
-      name: "gender",
-      label: "Gender",
-      type: "select",
-      options: [
-        { key: "male", label: "Male" },
-        { key: "female", label: "Female" },
-        { key: "other", label: "Other" },
+      title: "Basic Information",
+      fields: [
+        { name: "name", label: "Name", type: "text", required: true },
+        { name: "email", label: "Email", type: "email" },
+        { name: "mobileNo", label: "Mobile No", type: "text", required: true },
+        isEdit
+          ? { name: "gender", label: "Gender", type: "text", readOnly: true }
+          : {
+              name: "gender",
+              label: "Gender",
+              type: "select",
+              options: [
+                { key: "male", label: "Male" },
+                { key: "female", label: "Female" },
+                { key: "other", label: "Other" },
+              ],
+            },
+        isEdit
+          ? { name: "dateOfBirth", label: "Date of Birth", type: "text", readOnly: true }
+          : { name: "dateOfBirth", label: "Date of Birth", type: "date" },
+        { name: "language", label: "Language", type: "text", readOnly: isEdit },
       ],
     },
-    { name: "dateOfBirth", label: "Date of Birth", type: "date" },
-    { name: "language", label: "Language", type: "text" },
     // Status controls — edit only (admin can block / verify / activate / delete)
     ...(isEdit
       ? [
-          { name: "isActive", label: "Active", type: "select", isBoolean: true, options: statusSelect },
-          { name: "isVerified", label: "Verified", type: "select", isBoolean: true, options: statusSelect },
-          { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true, options: statusSelect },
-          { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true, options: statusSelect },
+          {
+            title: "Status",
+            fields: [
+              { name: "isActive", label: "Active", type: "select", isBoolean: true },
+              { name: "isVerified", label: "Verified", type: "select", isBoolean: true },
+              { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true },
+              { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true },
+            ],
+          },
         ]
       : []),
   ];
@@ -200,22 +214,6 @@ const Users = () => {
       <h4>
         <i className="bx bx-user" /> Users
       </h4>
-      <div className="d-flex align-items-center gap-2 mb-3">
-        <label className="mb-0">Status:</label>
-        <select
-          className="form-select"
-          style={{ width: 220 }}
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-        >
-          <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="blocked">Blocked</option>
-          <option value="verified">Verified</option>
-          <option value="deleted">Deleted</option>
-        </select>
-      </div>
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}
@@ -228,6 +226,22 @@ const Users = () => {
         setPageSize={setPageSize}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        filters={
+          <FilterField label="Status">
+            <select
+              className="form-select"
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+            >
+              <option value="">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="blocked">Blocked</option>
+              <option value="verified">Verified</option>
+              <option value="deleted">Deleted</option>
+            </select>
+          </FilterField>
+        }
         isGlobalFilter={true}
         isAddButton={true}
         isPagination={true}
@@ -246,7 +260,7 @@ const Users = () => {
         toggle={toggle}
         isEdit={isEdit}
         validation={validation}
-        formFields={formFields}
+        fieldGroups={fieldGroups}
       />
     </div>
   );

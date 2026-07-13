@@ -18,6 +18,7 @@ import {
 } from "../../helpers/walletTransactionApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 
@@ -29,12 +30,18 @@ const WithdrawalRequest = () => {
     const [globalFilter, setGlobalFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("pending");
     const [modelTypeFilter, setModelTypeFilter] = useState("");
+    // Particular user/vendor filter (mutually exclusive)
+    const [selectedUser, setSelectedUser] = useState("");
+    const [selectedVendor, setSelectedVendor] = useState("");
 
     // Review modal
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(null);
     const [note, setNote] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    // A specific user OR vendor id narrows to that entity's requests.
+    const selectedEntityId = selectedUser || selectedVendor;
 
     const fetchData = async () => {
         const res = await getWithdrawalRequests({
@@ -43,10 +50,15 @@ const WithdrawalRequest = () => {
             limit: pageSize,
             status: statusFilter,
             modelType: modelTypeFilter,
+            modelId: selectedEntityId,
         });
         setData(res?.data || []);
         setTotalCount(res?.pagination?.total || 0);
     };
+
+    // Keep the two entity pickers mutually exclusive.
+    const handleSelectUser = (id) => { setSelectedUser(id); setSelectedVendor(""); setPageIndex(0); };
+    const handleSelectVendor = (id) => { setSelectedVendor(id); setSelectedUser(""); setPageIndex(0); };
 
     const openReview = (row) => {
         setSelected(row);
@@ -124,7 +136,7 @@ const WithdrawalRequest = () => {
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageIndex, pageSize, globalFilter, statusFilter, modelTypeFilter]);
+    }, [pageIndex, pageSize, globalFilter, statusFilter, modelTypeFilter, selectedUser, selectedVendor]);
 
     const owner = selected?.modelId || {};
     const balance = Number(owner.walletAmount);
@@ -141,35 +153,6 @@ const WithdrawalRequest = () => {
         <div className="page-content">
             <h4><i className="bx bxs-wallet" /> Withdrawal Requests</h4>
 
-            <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
-                <div className="d-flex align-items-center gap-2">
-                    <label className="mb-0">Status:</label>
-                    <select
-                        className="form-select"
-                        style={{ width: 180 }}
-                        value={statusFilter}
-                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-                    >
-                        <option value="pending">Pending</option>
-                        <option value="completed">Approved</option>
-                        <option value="failed">Rejected</option>
-                    </select>
-                </div>
-                <div className="d-flex align-items-center gap-2">
-                    <label className="mb-0">Model Type:</label>
-                    <select
-                        className="form-select"
-                        style={{ width: 180 }}
-                        value={modelTypeFilter}
-                        onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
-                    >
-                        <option value="">All</option>
-                        <option value="User">User</option>
-                        <option value="Vendor">Vendor</option>
-                    </select>
-                </div>
-            </div>
-
             <DataTableContainer
                 columns={columns}
                 data={data}
@@ -181,6 +164,38 @@ const WithdrawalRequest = () => {
                 setPageSize={setPageSize}
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
+                filters={
+                    <>
+                        <FilterField label="Status" width={160}>
+                            <select
+                                className="form-select"
+                                value={statusFilter}
+                                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="pending">Pending</option>
+                                <option value="completed">Approved</option>
+                                <option value="failed">Rejected</option>
+                            </select>
+                        </FilterField>
+                        <FilterField label="Model Type" width={150}>
+                            <select
+                                className="form-select"
+                                value={modelTypeFilter}
+                                onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                <option value="User">User</option>
+                                <option value="Vendor">Vendor</option>
+                            </select>
+                        </FilterField>
+                    </>
+                }
+                selectedUser={selectedUser}
+                setSelectedUser={handleSelectUser}
+                selectedVendor={selectedVendor}
+                setSelectedVendor={handleSelectVendor}
+                isUserFilter={true}
+                isVendorFilter={true}
                 isSrNo={true}
                 isGlobalFilter={true}
                 isAddButton={false}
@@ -219,6 +234,22 @@ const WithdrawalRequest = () => {
                                 />
                                 <Detail label="Status" value={statusBadge(selected.status)} />
                             </Row>
+
+                            {selected.modelType === "Vendor" && (
+                                <>
+                                    <h6 className="text-uppercase text-muted mb-3 mt-2">Bank Details</h6>
+                                    {owner.accountHolderName || owner.bankName || owner.accountNumber || owner.ifscCode ? (
+                                        <Row>
+                                            <Detail label="Account Holder Name" value={owner.accountHolderName} />
+                                            <Detail label="Bank Name" value={owner.bankName} />
+                                            <Detail label="Account Number" value={owner.accountNumber} />
+                                            <Detail label="IFSC Code" value={owner.ifscCode} />
+                                        </Row>
+                                    ) : (
+                                        <div className="text-muted mb-3">No bank details available for this vendor.</div>
+                                    )}
+                                </>
+                            )}
 
                             <h6 className="text-uppercase text-muted mb-3 mt-2">Request</h6>
                             <Row>

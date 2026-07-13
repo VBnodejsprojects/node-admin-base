@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { getAllNotifications } from "../../helpers/notificationApi";
 
@@ -77,20 +78,6 @@ const AllNotifications = () => {
         <div className="page-content">
             <h4><i className="bx bx-bell" /> All Notifications</h4>
 
-            <div className="d-flex align-items-center gap-2 mb-3">
-                <label className="mb-0">Model Type:</label>
-                <select
-                    className="form-select"
-                    style={{ width: 200 }}
-                    value={modelNameFilter}
-                    onChange={(e) => { setModelNameFilter(e.target.value); setPageIndex(0); }}
-                >
-                    <option value="">All</option>
-                    <option value="User">User</option>
-                    <option value="Vendor">Vendor</option>
-                </select>
-            </div>
-
             <DataTableContainer
                 columns={columns}
                 fetchData={fetchData}
@@ -103,6 +90,19 @@ const AllNotifications = () => {
                 setPageSize={setPageSize}
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
+                filters={
+                    <FilterField label="Recipient Type">
+                        <select
+                            className="form-select"
+                            value={modelNameFilter}
+                            onChange={(e) => { setModelNameFilter(e.target.value); setPageIndex(0); }}
+                        >
+                            <option value="">All</option>
+                            <option value="User">User</option>
+                            <option value="Vendor">Vendor</option>
+                        </select>
+                    </FilterField>
+                }
                 isGlobalFilter={true}
                 isCustomPageSize={true}
                 isPagination={true}

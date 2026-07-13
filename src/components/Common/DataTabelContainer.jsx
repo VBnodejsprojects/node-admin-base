@@ -10,6 +10,7 @@ import {
 import { getAllUsersListForFilter, getAllVendorsListForFilter } from "../../helpers/filterApi";
 import { set } from "lodash"
 import SearchableDropdown from "./SearchableDropdown";
+import FilterField from "./FilterField";
 // import JobListGlobalFilter from "./GlobalSearchFilter";
 
 const DataTableContainer = ({
@@ -47,6 +48,7 @@ const DataTableContainer = ({
   isCustomPageSize,
   isJobListGlobalFilter,
   storeType,
+  filters,
   fetchDataDeps = [],
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -125,26 +127,29 @@ const DataTableContainer = ({
   return (
     <Fragment>
       <div className="surface-card">
-      <div className="mb-2 d-flex justify-content-between gap-2 align-items-center mt-4" style={{ marginTop: 0 }}>
+      {/* Unified filter/toolbar section — every filter lives here, aligned in one row. */}
+      <div className="dt-toolbar d-flex flex-wrap align-items-end gap-2 mb-3">
         {isCustomPageSize && (
-          <Col sm={2}>
+          <FilterField label="Show" width={90}>
             <select
-              className="form-select pageSize mb-2"
+              className="form-select"
               value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-              }}
+              onChange={(e) => setPageSize(Number(e.target.value))}
             >
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <option key={pageSize} value={pageSize}>
-                  Show {pageSize}
+              {[10, 20, 30, 40, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
                 </option>
               ))}
             </select>
-          </Col>
+          </FilterField>
         )}
+
+        {/* Page-specific filters (status, model type, dates, etc.) */}
+        {filters}
+
         {isUserFilter && (
-          <Col sm={3}>
+          <FilterField label="User" width={200}>
             <SearchableDropdown
               options={userOptions}
               onChange={(value) => setSelectedUser(value)}
@@ -152,50 +157,60 @@ const DataTableContainer = ({
               subField="mobileNo"
               placeholder="Search User..."
               allLabel="All Users"
+              inputClassName="form-control"
             />
-          </Col>
+          </FilterField>
         )}
 
         {isVendorFilter && (
-          <Col sm={3}>
+          <FilterField label="Vendor" width={200}>
             <SearchableDropdown
               options={vendorOptions}
               onChange={(value) => setSelectedVendor(value)}
               displayField="name"
+              subField="mobileNo"
               placeholder="Search Vendor..."
               allLabel="All Vendors"
+              inputClassName="form-control"
             />
-          </Col>
+          </FilterField>
         )}
 
-        <Col sm={3} className="position-relative d-inline-block">
+        {/* Search + primary action pushed to the right */}
+        <div className="ms-auto d-flex align-items-end gap-2">
           {isGlobalFilter && (
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="form-control search-box me-2 mb-2 d-inline-block"
-              placeholder={SearchPlaceholder}
-            />
+            <FilterField label="Search" width={220}>
+              <div className="position-relative">
+                <input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="form-control search-box"
+                  placeholder={SearchPlaceholder}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={clearSearch}
+                    className="btn position-absolute top-50 end-0 translate-middle-y me-1 p-0"
+                    style={{ border: "none", background: "transparent" }}
+                  >
+                    <i className="bx bx-x fs-3"></i>
+                  </button>
+                )}
+              </div>
+            </FilterField>
           )}
-          {searchTerm && (
-            <button
-              onClick={clearSearch}
-              className="btn position-absolute top-50 end-0 translate-middle-y me-2 p-0"
-              style={{ border: "none", background: "transparent" }}
-            >
-              <i className="bx bx-x fs-2"></i>
-            </button>
-          )}
-        </Col>
 
-        {isAddButton && (
-          <div className="text-sm-end">
-            <Button type="button" className={buttonClass} onClick={handleClick}>
+          {isAddButton && (
+            <Button
+              type="button"
+              className={(buttonClass || "btn btn-success").replace(/\bmb-2\b/g, "").replace(/\bme-2\b/g, "").trim()}
+              onClick={handleClick}
+            >
               <i className="mdi mdi-plus me-1"></i> {buttonName}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className={divClassName || "table-responsive"}>
