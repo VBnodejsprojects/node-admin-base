@@ -1,0 +1,166 @@
+/* ===== Premium report pages shared styling ===== */
+
+.report-page .report-header {
+  background: linear-gradient(135deg, #556ee6 0%, #6f42c1 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  box-shadow: 0 10px 24px rgba(85, 110, 230, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.report-page .report-header .report-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-page .report-header .report-title i {
+  font-size: 1.6rem;
+  opacity: 0.9;
+}
+
+.report-page .report-header .report-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* Filter / table cards */
+.report-page .report-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(18, 38, 63, 0.06);
+}
+
+.report-page .report-card .card-body {
+  padding: 20px 22px;
+}
+
+.report-page .report-section-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 14px;
+  color: #344767;
+}
+
+.report-page .form-label,
+.report-page label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #8392ab;
+}
+
+.report-page .form-control,
+.report-page .form-select {
+  border-radius: 10px;
+}
+
+/* Premium buttons */
+.report-page .btn {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.5rem 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* KPI / stat cards */
+.report-page .stat-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(18, 38, 63, 0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  height: 100%;
+}
+
+.report-page .stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(18, 38, 63, 0.12);
+}
+
+.report-page .stat-card .card-body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px;
+}
+
+.report-page .stat-icon {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.report-page .stat-label {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #8392ab;
+  font-weight: 600;
+}
+
+.report-page .stat-value {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #344767;
+  line-height: 1.2;
+}
+
+/* Accent variants */
+.report-page .stat-primary .stat-icon { background: rgba(75, 108, 183, 0.14); color: #4b6cb7; }
+.report-page .stat-success .stat-icon { background: rgba(52, 195, 143, 0.14); color: #34c38f; }
+.report-page .stat-warning .stat-icon { background: rgba(241, 180, 76, 0.16); color: #f1b44c; }
+.report-page .stat-danger  .stat-icon { background: rgba(244, 106, 106, 0.14); color: #f46a6a; }
+.report-page .stat-info    .stat-icon { background: rgba(80, 165, 241, 0.14); color: #50a5f1; }
+.report-page .stat-purple  .stat-icon { background: rgba(106, 63, 181, 0.14); color: #6a3fb5; }
+
+/* Store summary cards (Order Calculation) */
+.report-page .store-summary-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(18, 38, 63, 0.06);
+  overflow: hidden;
+  height: 100%;
+}
+
+.report-page .store-summary-card .store-head {
+  padding: 14px 18px;
+  color: #fff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-page .store-summary-card .store-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 18px;
+  font-size: 0.875rem;
+}
+
+.report-page .store-summary-card .store-row .text-muted { color: #8392ab; }
+
+.report-page .store-1 .store-head { background: linear-gradient(135deg, #4b6cb7, #50a5f1); }
+.report-page .store-2 .store-head { background: linear-gradient(135deg, #34c38f, #2a9d78); }
+.report-page .store-3 .store-head { background: linear-gradient(135deg, #f1b44c, #f46a6a); }

@@ -1,0 +1,27 @@
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+.Toastify__toast.toastify-success {
+  background: #28a745 !important;
+  color: #fff !important;
+}
+
+.Toastify__toast.toastify-error {
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+
+.Toastify__toast.toastify-warning {
+  background: #f59e0b !important;
+  color: #1f2937 !important;
+}
+
+.Toastify__toast.toastify-info {
+  background: #0ea5e9 !important;
+  color: #fff !important;
+}

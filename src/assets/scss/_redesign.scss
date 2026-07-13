@@ -1,0 +1,326 @@
+// ============================================================
+//  Minimal / professional UI redesign — GLOBAL (compact)
+//
+//  Table/toolbar/pagination styles are scoped to `.surface-card`
+//  (injected by DataTableContainer) so non-data tables such as
+//  dashboards are left untouched. Modal styles are scoped to
+//  `.modal-content` so every add/edit dialog matches.
+// ============================================================
+
+$rd-bg:            #f6f7f9;   // page background
+$rd-surface:       #ffffff;   // card background
+$rd-border:        #eceef2;   // hairline borders
+$rd-border-soft:   #f1f3f6;   // row separators
+$rd-text:          #1f2937;   // headings / strong text
+$rd-text-body:     #475467;   // table body text
+$rd-text-muted:    #98a2b3;   // labels / subtitles
+$rd-primary:       #556ee6;   // accent
+$rd-radius:        14px;
+$rd-radius-sm:     8px;
+
+// ---- Premium page header (applies globally to every page) ---
+// Most pages render `<div class="page-content"><h4>Title</h4> …`.
+// Turn that bare title into a gradient header bar so the whole admin
+// matches the premium report design. Pages that wrap their title in a
+// `.page-title-box` (breadcrumb pages) get the same treatment.
+.page-content > h4 {
+  background: linear-gradient(135deg, #556ee6 0%, #6f42c1 100%);
+  color: #fff;
+  border-radius: $rd-radius;
+  padding: 18px 24px;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 10px 24px rgba($rd-primary, 0.25);
+
+  // related symbol before the page name
+  > i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    vertical-align: middle;
+    opacity: 0.95;
+  }
+}
+
+.page-content .page-title-box {
+  background: linear-gradient(135deg, #556ee6 0%, #6f42c1 100%);
+  border-radius: $rd-radius;
+  padding: 16px 24px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 24px rgba($rd-primary, 0.25);
+
+  h4 {
+    color: #fff;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .breadcrumb-item,
+  .breadcrumb-item a,
+  .breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+// ---- Reusable premium header bar (title + actions) ----------
+// For pages whose title sits in a row with an action button
+// (e.g. Products with an Export button) so they match the
+// gradient header used everywhere else.
+.page-content .premium-header {
+  background: linear-gradient(135deg, #556ee6 0%, #6f42c1 100%);
+  border-radius: $rd-radius;
+  padding: 16px 24px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 24px rgba($rd-primary, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h4 {
+    color: #fff;
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.3rem;
+
+    > i {
+      margin-right: 10px;
+      font-size: 1.2em;
+      vertical-align: middle;
+      opacity: 0.95;
+    }
+  }
+
+  // make action buttons stand out on the gradient
+  .btn {
+    background: #fff;
+    border-color: #fff;
+    color: $rd-primary;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: $rd-primary;
+    }
+  }
+}
+
+// ---- App-wide polish to match the premium look --------------
+.page-content {
+  .card {
+    border-radius: $rd-radius;
+  }
+
+  .btn {
+    border-radius: $rd-radius-sm;
+  }
+
+  .form-control,
+  .form-select {
+    border-radius: $rd-radius-sm;
+  }
+}
+
+// ============================================================
+//  Data-table surface card (wraps DataTableContainer output)
+// ============================================================
+.surface-card {
+  background: $rd-surface;
+  border: 1px solid $rd-border;
+  border-radius: $rd-radius;
+  box-shadow: 0 1px 2px rgba(18, 38, 63, 0.04),
+    0 10px 28px rgba(18, 38, 63, 0.03);
+  padding: 1rem 1.25rem;
+
+  // ---- Toolbar (search / page size / add button) ----------
+  .form-select.pageSize,
+  .search-box {
+    border: 1px solid #e5e7eb;
+    border-radius: $rd-radius-sm;
+    box-shadow: none;
+    font-size: 0.8125rem;
+    color: $rd-text-body;
+    min-height: 38px;
+
+    &:focus {
+      border-color: $rd-primary;
+      box-shadow: 0 0 0 3px rgba($rd-primary, 0.12);
+    }
+  }
+
+  // Add button — soften the template's pill button
+  .btn-success,
+  .btn-primary {
+    border-radius: $rd-radius-sm;
+    box-shadow: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+  }
+
+  // ---- Table (compact) -------------------------------------
+  .table {
+    margin-bottom: 0;
+
+    thead th {
+      text-transform: uppercase;
+      font-size: 0.6875rem;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      color: $rd-text-muted;
+      background-color: #fafbfc;
+      border-bottom: 1px solid $rd-border;
+      border-top: 0;
+      padding: 0.85rem 0.85rem;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.9rem 0.85rem;
+      vertical-align: middle;
+      border-bottom: 1px solid $rd-border-soft;
+      border-top: 0;
+      color: $rd-text-body;
+      font-size: 0.8125rem;
+    }
+
+    tbody tr {
+      transition: background-color 0.15s ease;
+
+      &:hover td {
+        background-color: #fafbfc;
+      }
+
+      &:last-child td {
+        border-bottom: 0;
+      }
+    }
+
+    td a i.mdi {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+  }
+
+  // ---- Results info + pagination ---------------------------
+  .dataTables_info {
+    color: $rd-text-muted;
+    font-size: 0.8125rem;
+    padding-top: 0.5rem;
+  }
+
+  .pagination {
+    .page-link {
+      border: 0;
+      color: $rd-text-body;
+      border-radius: $rd-radius-sm !important;
+      margin: 0 2px;
+      font-size: 0.8125rem;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .page-item.active .page-link {
+      background-color: $rd-primary;
+      color: #fff;
+    }
+
+    .page-item:not(.active) .page-link:hover {
+      background-color: rgba($rd-primary, 0.08);
+      color: $rd-primary;
+    }
+
+    .page-item.disabled .page-link {
+      color: #cbd2dd;
+      background: transparent;
+    }
+  }
+}
+
+// ============================================================
+//  Modals — every add/edit dialog (reactstrap `.modal-content`)
+// ============================================================
+.modal-content {
+  border: 0;
+  border-radius: $rd-radius;
+  box-shadow: 0 24px 64px rgba(18, 38, 63, 0.18);
+  overflow: hidden;
+
+  .modal-header {
+    border-bottom: 1px solid $rd-border;
+    padding: 1.1rem 1.25rem;
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: $rd-text;
+    }
+  }
+
+  .modal-body {
+    padding: 1.25rem;
+  }
+
+  // Two-column responsive form grid (fields render as `.mb-3`
+  // blocks inside `.col-12` via the shared DynamicFormFields).
+  .modal-body form > .row > .col-12 {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 1.25rem;
+
+    @media (min-width: 576px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    > .mb-3 {
+      margin-bottom: 0.9rem !important;
+      min-width: 0;
+    }
+  }
+
+  .form-label,
+  label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: $rd-text-body;
+    margin-bottom: 0.35rem;
+  }
+
+  .form-control,
+  .form-select {
+    border-radius: $rd-radius-sm;
+    border-color: #e5e7eb;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+
+    &:focus {
+      border-color: $rd-primary;
+      box-shadow: 0 0 0 3px rgba($rd-primary, 0.12);
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: #f6f7f9;
+      color: $rd-text-muted;
+    }
+  }
+
+  // Action row — divider + buttons
+  form > .row.mt-3 {
+    border-top: 1px solid $rd-border;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+  }
+
+  .btn {
+    border-radius: $rd-radius-sm;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.5rem 1.1rem;
+  }
+}

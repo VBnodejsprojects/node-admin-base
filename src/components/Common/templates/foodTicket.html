@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Food Ticket - {{orderNo}}</title>
+    <style>
+      @media print {
+        @page {
+          size: 80mm auto;
+          margin: 0;
+        }
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+      body {
+        font-family: "Courier New", Courier, monospace;
+        margin: 0;
+        padding: 8px 10px;
+        font-size: 13px;
+        line-height: 1.5;
+        background: white;
+        color: #000;
+        width: 80mm;
+        max-width: 80mm;
+        font-weight: 700;
+      }
+      .center {
+        text-align: center;
+      }
+      .platform {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        margin-bottom: 2px;
+      }
+      .token {
+        font-size: 15px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 2px;
+      }
+      .store {
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+      .divider {
+        border-top: 1px solid #000;
+        margin: 6px 0;
+      }
+      .meta-line {
+        margin-bottom: 2px;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .label {
+        font-weight: 700;
+      }
+      .highlight {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .item {
+        margin-top: 6px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .addon {
+        margin-left: 22px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 900;
+      }
+      .thanks {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <div class="platform">{{platform}} # {{orderNo}}</div> -->
+    <div class="store">{{storeName}}</div>
+    <div class="divider"></div>
+    <div class="center meta-line">{{dateTime}}</div>
+    <div class="center meta-line">Invoice No # {{invoiceNo}}</div>
+    <div class="divider"></div>
+    <div class="row meta-line">
+      <span class="label">Customer</span><span>{{customerName}}</span>
+    </div>
+    <div class="row meta-line">
+      <span class="label">Mobile No</span><span>{{customerMobile}}</span>
+    </div>
+    {{metaHtml}}
+    <div class="divider"></div>
+    {{itemsHtml}}
+    <div class="divider"></div>
+    <div class="total-row">
+      <span>TOTAL</span><span>{{payableAmount}}</span>
+    </div>
+    <div class="divider"></div>
+    <div class="thanks">Thank You</div>
+  </body>
+</html>
