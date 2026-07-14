@@ -123,11 +123,15 @@ const WalletTransactions = () => {
     };
 
     const columns = [
-        { header: "Model Type", accessorKey: "modelType" },
         {
             header: "Entity",
             accessorKey: "modelId.name",
-            cell: ({ row }) => <EntityCell entity={row.original.modelId} />,
+            cell: ({ row }) => (
+                <div className="d-flex align-items-center gap-2">
+                    <EntityCell entity={row.original.modelId} />
+                    <Badge color="light" className="text-dark">{row.original.modelType}</Badge>
+                </div>
+            ),
         },
         {
             header: "Transaction Type",
@@ -144,7 +148,15 @@ const WalletTransactions = () => {
         {
             header: "Description",
             accessorKey: "description",
-            cell: ({ row }) => row.original.description || "N/A",
+            cell: ({ row }) => (
+                <div
+                    className="text-muted small text-truncate"
+                    style={{ maxWidth: 160 }}
+                    title={row.original.description || ""}
+                >
+                    {row.original.description || "N/A"}
+                </div>
+            ),
         },
         {
             header: "Status",

@@ -30,6 +30,8 @@ const WithdrawalRequest = () => {
     const [globalFilter, setGlobalFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("pending");
     const [modelTypeFilter, setModelTypeFilter] = useState("");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
     // Particular user/vendor filter (mutually exclusive)
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedVendor, setSelectedVendor] = useState("");
@@ -53,6 +55,8 @@ const WithdrawalRequest = () => {
             status: statusFilter,
             modelType: modelTypeFilter,
             modelId: selectedEntityId,
+            from: fromDate,
+            to: toDate,
         });
         setData(res?.data || []);
         setTotalCount(res?.pagination?.total || 0);
@@ -111,11 +115,15 @@ const WithdrawalRequest = () => {
     };
 
     const columns = [
-        { header: "Model Type", accessorKey: "modelType" },
         {
             header: "Requested By",
             accessorKey: "modelId.name",
-            cell: ({ row }) => <EntityCell entity={row.original.modelId} />,
+            cell: ({ row }) => (
+                <div className="d-flex align-items-center gap-2">
+                    <EntityCell entity={row.original.modelId} />
+                    <Badge color="light" className="text-dark">{row.original.modelType}</Badge>
+                </div>
+            ),
         },
         {
             header: "Wallet Balance",
@@ -127,6 +135,19 @@ const WithdrawalRequest = () => {
             header: "Status",
             accessorKey: "status",
             cell: ({ row }) => statusBadge(row.original.status),
+        },
+        {
+            header: "Notes",
+            accessorKey: "description",
+            cell: ({ row }) => (
+                <div
+                    className="text-muted small text-truncate"
+                    style={{ maxWidth: 160 }}
+                    title={row.original.description || ""}
+                >
+                    {row.original.description || "-"}
+                </div>
+            ),
         },
         {
             header: "Requested At",
@@ -147,7 +168,7 @@ const WithdrawalRequest = () => {
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pageIndex, pageSize, globalFilter, statusFilter, modelTypeFilter, selectedUser, selectedVendor]);
+    }, [pageIndex, pageSize, globalFilter, statusFilter, modelTypeFilter, selectedUser, selectedVendor, fromDate, toDate]);
 
     const owner = selected?.modelId || {};
     const balance = Number(owner.walletAmount);
@@ -183,6 +204,7 @@ const WithdrawalRequest = () => {
                                 value={statusFilter}
                                 onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
                             >
+                                <option value="all">All</option>
                                 <option value="pending">Pending</option>
                                 <option value="completed">Approved</option>
                                 <option value="failed">Rejected</option>
@@ -198,6 +220,20 @@ const WithdrawalRequest = () => {
                                 <option value="User">User</option>
                                 <option value="Vendor">Vendor</option>
                             </select>
+                        </FilterField>
+                        <FilterField label="From Date" width={150}>
+                            <Input
+                                type="date"
+                                value={fromDate}
+                                onChange={(e) => { setFromDate(e.target.value); setPageIndex(0); }}
+                            />
+                        </FilterField>
+                        <FilterField label="To Date" width={150}>
+                            <Input
+                                type="date"
+                                value={toDate}
+                                onChange={(e) => { setToDate(e.target.value); setPageIndex(0); }}
+                            />
                         </FilterField>
                     </>
                 }

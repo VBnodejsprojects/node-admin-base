@@ -38,7 +38,7 @@ export const getAllWalletTransactions = async ({ id, role, page = 1, limit = 10,
 };
 
 // GET /wallet/transaction/withdrawals — pending withdrawal requests (admin)
-export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10, status = "pending", modelType = "", modelId = "" }) => {
+export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10, status = "pending", modelType = "", modelId = "", from = "", to = "" }) => {
     page = page + 1;
     try {
         const params = new URLSearchParams({
@@ -49,6 +49,8 @@ export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10,
         });
         if (modelType) params.append("modelType", modelType);
         if (modelId) params.append("modelId", modelId);
+        if (from) params.append("from", from);
+        if (to) params.append("to", to);
         const response = await get(`wallet/transaction/withdrawals?${params}`, { headers });
         return response;
     } catch (error) {
