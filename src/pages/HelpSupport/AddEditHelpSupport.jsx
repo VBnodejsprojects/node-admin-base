@@ -6,9 +6,9 @@ import {
   ModalHeader,
   ModalBody,
   Form,
+  Label,
 } from "reactstrap";
 
-import FileUploadWithPreview from "../../components/Common/FileUploadWithPreview";
 import DynamicFormFields from "../../components/Common/DynamicFormFields";
 
 const AddEditHelpSupport = ({
@@ -17,10 +17,10 @@ const AddEditHelpSupport = ({
   isEdit,
   validation,
   formFields,
-  setSelectedFile,
-  selectedFile,
   helpSupport,
+  onPreviewImage,
 }) => {
+  const helpImage = validation.values.helpImage || helpSupport?.helpImage;
   return (
     <Modal isOpen={open} toggle={toggle}>
       <ModalHeader toggle={toggle} tag="h4">
@@ -37,20 +37,28 @@ const AddEditHelpSupport = ({
 
           <DynamicFormFields formFields={formFields} validation={validation} />
 
-          <FileUploadWithPreview
-            label={"Help Image"}
-            fileType="image"
-            onFileChange={(file) => {
-              setSelectedFile(file);
-              validation.setFieldValue("helpImage", file);
-            }}
-            validation={validation}
-            existingUrl={validation.values.helpImage}
-            file={selectedFile}
-            error={validation.errors.helpImage}
-            touched={validation.touched.helpImage}
-            readOnly={true}
-          />
+          {/* Help image — read-only preview; click to open full size. */}
+          <div className="mb-3">
+            <Label className="d-block">Help Image</Label>
+            {helpImage ? (
+              <div
+                role="button"
+                title="Click to preview full image"
+                style={{ cursor: "pointer" }}
+                onClick={() => onPreviewImage?.(helpImage)}
+              >
+                <img
+                  src={helpImage}
+                  alt="help"
+                  className="img-fluid rounded border"
+                  style={{ maxWidth: "100%", maxHeight: 240, objectFit: "contain" }}
+                />
+                <div className="text-muted small mt-1">Click the image to preview full size.</div>
+              </div>
+            ) : (
+              <div className="text-muted">No image attached.</div>
+            )}
+          </div>
 
           <Row>
             <Col className="d-flex gap-3 flex-row-reverse">

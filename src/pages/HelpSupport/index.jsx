@@ -51,6 +51,8 @@ const HelpSupport = () => {
   const [selectedVendor, setSelectedVendor] = useState("");
 
   const [selectedFile, setSelectedFile] = useState();
+  // Full-size help image shown in an in-app modal (not a new browser tab).
+  const [previewImage, setPreviewImage] = useState(null);
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -175,11 +177,16 @@ const HelpSupport = () => {
             style={{ width: "44px", height: "44px", objectFit: "cover" }}
           />
         );
-        // Clickable preview (opens the full image in a new tab) when one exists.
+        // Clickable preview → opens the full image in an in-app modal.
         return img ? (
-          <a href={img} target="_blank" rel="noreferrer" title="Preview image">
+          <span
+            role="button"
+            title="Preview image"
+            style={{ cursor: "pointer" }}
+            onClick={() => setPreviewImage(img)}
+          >
             {thumb}
-          </a>
+          </span>
         ) : (
           thumb
         );
@@ -291,8 +298,8 @@ const HelpSupport = () => {
     { name: "createdBy", label: "Created By", type: "text", readOnly: true },
     { name: "createdByMobileNo", label: "Created By Mobile No", type: "text", readOnly: true },
     // { name: "createdByModel", label: "Created By Model", type: "text", readOnly: true },
-    { name: "subject", label: "Subject", type: "text", readOnly: true },
-    { name: "comment", label: "Comment", type: "textarea", readOnly: true },
+    { name: "subject", label: "Subject", type: "textarea", rows: 2, readOnly: true },
+    { name: "comment", label: "Comment", type: "textarea", rows: 5, readOnly: true },
     ...(isEdit
       ? [
         /*
@@ -344,6 +351,22 @@ const HelpSupport = () => {
         onDeleteClick={handleDelete}
         onCloseClick={() => setDeleteModal(false)}
       />
+
+      {/* Full-size help image preview */}
+      <Modal isOpen={!!previewImage} toggle={() => setPreviewImage(null)} size="lg" centered zIndex={2000}>
+        <ModalHeader toggle={() => setPreviewImage(null)}>Help Image</ModalHeader>
+        <ModalBody className="text-center">
+          {previewImage && (
+            <img
+              src={previewImage}
+              alt="help"
+              className="img-fluid rounded"
+              style={{ maxHeight: "75vh" }}
+            />
+          )}
+        </ModalBody>
+      </Modal>
+
       <h4><i className="bx bx-help-circle" /> Help & Support</h4>
 
       <DataTableContainer
@@ -376,7 +399,12 @@ const HelpSupport = () => {
               <Input
                 type="select"
                 value={modelTypeFilter}
-                onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+                onChange={(e) => {
+                  setModelTypeFilter(e.target.value);
+                  setSelectedUser("");   // switching type clears any picked entity
+                  setSelectedVendor("");
+                  setPageIndex(0);
+                }}
               >
                 <option value="">All</option>
                 <option value="User">User</option>
@@ -405,8 +433,8 @@ const HelpSupport = () => {
         setSelectedUser={handleSelectUser}
         selectedVendor={selectedVendor}
         setSelectedVendor={handleSelectVendor}
-        isUserFilter={true}
-        isVendorFilter={true}
+        isUserFilter={modelTypeFilter === "User"}
+        isVendorFilter={modelTypeFilter === "Vendor"}
         isGlobalFilter={true}
         isAddButton={false}
         isPagination={true}
@@ -426,9 +454,8 @@ const HelpSupport = () => {
         isEdit={isEdit}
         validation={validation}
         formFields={formFields}
-        setSelectedFile={setSelectedFile}
-        selectedFile={selectedFile}
         helpSupport={helpSupport}
+        onPreviewImage={setPreviewImage}
       />
     </div>
   );

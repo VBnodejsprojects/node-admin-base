@@ -16,6 +16,22 @@ const AllNotifications = () => {
     const [pageSize, setPageSize] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
     const [modelNameFilter, setModelNameFilter] = useState("");
+    // A specific recipient (User/Vendor _id), only relevant once a type is chosen.
+    const [selectedUser, setSelectedUser] = useState("");
+    const [selectedVendor, setSelectedVendor] = useState("");
+
+    const selectedEntityId =
+        modelNameFilter === "User" ? selectedUser
+        : modelNameFilter === "Vendor" ? selectedVendor
+        : "";
+
+    // Switching recipient type clears any previously-picked entity.
+    const handleTypeChange = (value) => {
+        setModelNameFilter(value);
+        setSelectedUser("");
+        setSelectedVendor("");
+        setPageIndex(0);
+    };
 
     const fetchData = useCallback(async () => {
         try {
@@ -24,6 +40,7 @@ const AllNotifications = () => {
                 limit: pageSize,
                 search: globalFilter || "",
                 modelName: modelNameFilter,
+                model: selectedEntityId,
             });
 
             const list = response?.notifications || [];
@@ -34,7 +51,7 @@ const AllNotifications = () => {
             setNotifications([]);
             setTotalCount(0);
         }
-    }, [pageIndex, pageSize, globalFilter, modelNameFilter]);
+    }, [pageIndex, pageSize, globalFilter, modelNameFilter, selectedEntityId]);
 
     useEffect(() => {
         fetchData();
@@ -96,7 +113,7 @@ const AllNotifications = () => {
                         <select
                             className="form-select"
                             value={modelNameFilter}
-                            onChange={(e) => { setModelNameFilter(e.target.value); setPageIndex(0); }}
+                            onChange={(e) => handleTypeChange(e.target.value)}
                         >
                             <option value="">All</option>
                             <option value="User">User</option>
@@ -104,6 +121,12 @@ const AllNotifications = () => {
                         </select>
                     </FilterField>
                 }
+                selectedUser={selectedUser}
+                setSelectedUser={(id) => { setSelectedUser(id); setPageIndex(0); }}
+                selectedVendor={selectedVendor}
+                setSelectedVendor={(id) => { setSelectedVendor(id); setPageIndex(0); }}
+                isUserFilter={modelNameFilter === "User"}
+                isVendorFilter={modelNameFilter === "Vendor"}
                 isGlobalFilter={true}
                 isCustomPageSize={true}
                 isPagination={true}

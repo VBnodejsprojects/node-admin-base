@@ -215,7 +215,12 @@ const WithdrawalRequest = () => {
                             <select
                                 className="form-select"
                                 value={modelTypeFilter}
-                                onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+                                onChange={(e) => {
+                                    setModelTypeFilter(e.target.value);
+                                    setSelectedUser("");   // switching type clears any picked entity
+                                    setSelectedVendor("");
+                                    setPageIndex(0);
+                                }}
                             >
                                 <option value="">All</option>
                                 <option value="User">User</option>
@@ -242,8 +247,8 @@ const WithdrawalRequest = () => {
                 setSelectedUser={handleSelectUser}
                 selectedVendor={selectedVendor}
                 setSelectedVendor={handleSelectVendor}
-                isUserFilter={true}
-                isVendorFilter={true}
+                isUserFilter={modelTypeFilter === "User"}
+                isVendorFilter={modelTypeFilter === "Vendor"}
                 isSrNo={true}
                 isGlobalFilter={true}
                 isAddButton={false}

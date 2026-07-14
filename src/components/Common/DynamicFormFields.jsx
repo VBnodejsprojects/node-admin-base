@@ -69,6 +69,8 @@ const DynamicFormFields = ({ formFields = [], validation }) => {
                                 readOnly={field.readOnly}
                                 disabled={field.readOnly}
                                 hidden={field.isEdit}
+                                rows={field.type === "textarea" ? field.rows || 4 : undefined}
+                                style={field.type === "textarea" ? { whiteSpace: "pre-wrap" } : undefined}
                                 onChange={(e) => {
                                     if (field.name === "mobileNo" && e.target.value.length > 10) {
                                         e.target.value = e.target.value.slice(0, 10);
