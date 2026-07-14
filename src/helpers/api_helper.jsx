@@ -6,7 +6,9 @@ import axios from "axios";
 // const token = localStorage.getItem("adminToken");
 
 // apply base url for axios
-const API_URL = "http://localhost:7010/api/";
+// const API_URL = "http://localhost:7010/api/";
+
+const API_URL = "https://3s58vpvv-7010.inc1.devtunnels.ms/api/"; // for image upload
 
 
 

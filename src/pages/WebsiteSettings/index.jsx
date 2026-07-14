@@ -14,11 +14,15 @@ const WebsiteSettings = () => {
   const tabFieldMap = {
     1: "websiteTerms",
     2: "websitePrivacy",
+    3: "websiteAbout",
+    4: "websiteRefundPolicy",
   };
 
   const tabs = [
     { label: "Terms & Conditions", id: "1" },
     { label: "Privacy Policy", id: "2" },
+    { label: "About Us", id: "3" },
+    { label: "Refund & Cancellation Policy", id: "4" },
   ];
 
   const [value, setValue] = useState("");

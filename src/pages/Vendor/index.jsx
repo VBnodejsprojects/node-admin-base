@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
 import { getAllVendor, updateVendor } from "../../helpers/vendorApi";
+import { getVendorAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
+import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditVendor from "./AddEditVendor";
@@ -17,6 +19,9 @@ const Vendors = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [accountStatusFilter, setAccountStatusFilter] = useState("");
+  const [versionFilter, setVersionFilter] = useState("");
+  const [versionOptions, setVersionOptions] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
 
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -91,6 +96,8 @@ const Vendors = () => {
         limit: pageSize,
         status: statusFilter,
         accountStatus: accountStatusFilter,
+        deleted: activeTab === "deleted",
+        appVersion: versionFilter,
       });
 
       if (response?.type === "success") {
@@ -111,6 +118,11 @@ const Vendors = () => {
     setVendor(data);
     setIsEdit(true);
     setOpen(true);
+  };
+
+  const fetchVersionOptions = async () => {
+    const response = await getVendorAppVersions();
+    setVersionOptions(response?.versions || []);
   };
 
   const getStatusBadge = (status) => {
@@ -140,6 +152,11 @@ const Vendors = () => {
     { header: "Email", accessorKey: "email", cell: ({ row }) => row.original.email || "N/A" },
     { header: "City", accessorKey: "city", cell: ({ row }) => row.original.city || "N/A" },
     { header: "State", accessorKey: "state", cell: ({ row }) => row.original.state || "N/A" },
+    {
+      header: "App Version",
+      accessorKey: "appVersion",
+      cell: ({ row }) => row.original.appVersion || "N/A",
+    },
     {
       header: "Status",
       accessorKey: "status",
@@ -245,12 +262,22 @@ const Vendors = () => {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize, globalFilter, statusFilter, accountStatusFilter]);
+  }, [pageIndex, pageSize, globalFilter, statusFilter, accountStatusFilter, activeTab, versionFilter]);
+
+  useEffect(() => {
+    fetchVersionOptions();
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setPageIndex(0);
+  };
 
   return (
     <div className="page-content">
       <h4><i className="bx bx-store-alt" /> Vendors</h4>
 
+      <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}
@@ -289,7 +316,18 @@ const Vendors = () => {
                 <option value="inactive">Inactive</option>
                 <option value="blocked">Blocked</option>
                 <option value="verified">Verified</option>
-                <option value="deleted">Deleted</option>
+              </select>
+            </FilterField>
+            <FilterField label="App Version">
+              <select
+                className="form-select"
+                value={versionFilter}
+                onChange={(e) => { setVersionFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                {versionOptions.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
               </select>
             </FilterField>
           </>

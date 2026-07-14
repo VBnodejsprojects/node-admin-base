@@ -186,17 +186,29 @@ const HelpSupport = () => {
     {
       header: "Solution",
       accessorKey: "response",
-      cell: ({ row }) => row.original.response || "N/A"
+      cell: ({ row }) => (
+        <div style={{ width: 260, whiteSpace: "normal", wordBreak: "break-word" }}>
+          {row.original.response || "N/A"}
+        </div>
+      ),
     },
     {
       header: "Subject",
       accessorKey: "subject",
-      cell: ({ row }) => row.original.subject || "N/A",
+      cell: ({ row }) => (
+        <div style={{ width: 180, whiteSpace: "normal", wordBreak: "break-word" }}>
+          {row.original.subject || "N/A"}
+        </div>
+      ),
     },
     {
       header: "Comment",
       accessorKey: "comment",
-      cell: ({ row }) => row.original.comment || "N/A",
+      cell: ({ row }) => (
+        <div style={{ width: 240, whiteSpace: "normal", wordBreak: "break-word" }}>
+          {row.original.comment || "N/A"}
+        </div>
+      ),
     },
 
     {

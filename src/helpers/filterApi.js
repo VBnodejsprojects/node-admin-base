@@ -25,3 +25,25 @@ export const getAllVendorsListForFilter = async () => {
         return { vendors: [] };
     }
 };
+
+// GET /filter/user/appVersions — returns { versions: [ "1.0.0", ... ] }
+export const getUserAppVersions = async () => {
+    try {
+        const response = await get(`filter/user/appVersions`, { headers });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user app versions:", error);
+        return { versions: [] };
+    }
+};
+
+// GET /filter/vendor/appVersions — returns { versions: [ "1.0.0", ... ] }
+export const getVendorAppVersions = async () => {
+    try {
+        const response = await get(`filter/vendor/appVersions`, { headers });
+        return response;
+    } catch (error) {
+        console.error("Error fetching vendor app versions:", error);
+        return { versions: [] };
+    }
+};

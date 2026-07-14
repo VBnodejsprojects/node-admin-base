@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
 import { getAllUser, addUser, updateUser } from "../../helpers/userApi";
+import { getUserAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
+import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import AddEditUser from "./AddEditUser";
@@ -16,6 +18,9 @@ const Users = () => {
   const [pageSize, setPageSize] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [versionFilter, setVersionFilter] = useState("");
+  const [versionOptions, setVersionOptions] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [user, setUser] = useState(null);
@@ -75,9 +80,16 @@ const Users = () => {
       page: pageIndex,
       limit: pageSize,
       status: statusFilter,
+      deleted: activeTab === "deleted",
+      appVersion: versionFilter,
     });
     setData(response?.users || []);
     setTotalCount(response?.total || 0);
+  };
+
+  const fetchVersionOptions = async () => {
+    const response = await getUserAppVersions();
+    setVersionOptions(response?.versions || []);
   };
 
   const onClickEdit = (rowUser) => {
@@ -94,6 +106,11 @@ const Users = () => {
     },
     { header: "Email", accessorKey: "email" },
     { header: "Gender", accessorKey: "gender" },
+    {
+      header: "App Version",
+      accessorKey: "appVersion",
+      cell: ({ row }) => row.original.appVersion || "N/A",
+    },
     {
       header: "Wallet Amount",
       accessorKey: "walletAmount",
@@ -207,13 +224,23 @@ const Users = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, globalFilter, statusFilter]);
+  }, [pageIndex, pageSize, globalFilter, statusFilter, activeTab, versionFilter]);
+
+  useEffect(() => {
+    fetchVersionOptions();
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setPageIndex(0);
+  };
 
   return (
     <div className="page-content">
       <h4>
         <i className="bx bx-user" /> Users
       </h4>
+      <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}
@@ -227,20 +254,33 @@ const Users = () => {
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
         filters={
-          <FilterField label="Status">
-            <select
-              className="form-select"
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-            >
-              <option value="">All</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="blocked">Blocked</option>
-              <option value="verified">Verified</option>
-              <option value="deleted">Deleted</option>
-            </select>
-          </FilterField>
+          <>
+            <FilterField label="Status">
+              <select
+                className="form-select"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="blocked">Blocked</option>
+                <option value="verified">Verified</option>
+              </select>
+            </FilterField>
+            <FilterField label="App Version">
+              <select
+                className="form-select"
+                value={versionFilter}
+                onChange={(e) => { setVersionFilter(e.target.value); setPageIndex(0); }}
+              >
+                <option value="">All</option>
+                {versionOptions.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </FilterField>
+          </>
         }
         isGlobalFilter={true}
         isAddButton={true}

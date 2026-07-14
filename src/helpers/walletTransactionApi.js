@@ -1,4 +1,5 @@
 import { post, get, put } from "./api_helper";
+import { processFormData } from "../utils/processFromData";
 
 let adminToken = localStorage.getItem("adminToken");
 let headers = {
@@ -57,9 +58,13 @@ export const getWithdrawalRequests = async ({ search = "", page = 1, limit = 10,
 };
 
 // PUT /wallet/transaction/withdrawal/:id/decision — approve | reject
+// data may include a transactionImage File, so it is sent as multipart/form-data.
+// (Authorization is attached by the axios interceptor; do NOT set Content-Type so the
+//  browser can add the multipart boundary itself.)
 export const processWithdrawalDecision = async (id, data) => {
     try {
-        const response = await put(`wallet/transaction/withdrawal/${id}/decision`, data, { headers });
+        const formData = processFormData(data);
+        const response = await put(`wallet/transaction/withdrawal/${id}/decision`, formData);
         return response;
     } catch (error) {
         return error;

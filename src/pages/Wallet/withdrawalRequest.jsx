@@ -38,6 +38,8 @@ const WithdrawalRequest = () => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(null);
     const [note, setNote] = useState("");
+    const [transactionId, setTransactionId] = useState("");
+    const [transactionImage, setTransactionImage] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
     // A specific user OR vendor id narrows to that entity's requests.
@@ -63,6 +65,8 @@ const WithdrawalRequest = () => {
     const openReview = (row) => {
         setSelected(row);
         setNote("");
+        setTransactionId("");
+        setTransactionImage(null);
         setOpen(true);
     };
 
@@ -70,12 +74,19 @@ const WithdrawalRequest = () => {
         setOpen(false);
         setSelected(null);
         setNote("");
+        setTransactionId("");
+        setTransactionImage(null);
     };
 
     const handleDecision = async (action) => {
         if (!selected) return;
         setSubmitting(true);
-        const res = await processWithdrawalDecision(selected._id, { action, remark: note });
+        const res = await processWithdrawalDecision(selected._id, {
+            action,
+            remark: note,
+            transactionId,
+            transactionImage,
+        });
         setSubmitting(false);
         if (res?.type === "success") {
             ShowToast.success(res.message);
@@ -267,18 +278,60 @@ const WithdrawalRequest = () => {
                             )}
 
                             {selected.status === "pending" ? (
-                                <div className="mb-1">
-                                    <Label>Note (optional) — added to the request on approval / rejection</Label>
-                                    <Input
-                                        type="textarea"
-                                        rows={3}
-                                        value={note}
-                                        onChange={(e) => setNote(e.target.value)}
-                                        placeholder="Add a note for this decision..."
-                                    />
-                                </div>
+                                <>
+                                    <h6 className="text-uppercase text-muted mb-3 mt-2">Payout Proof (optional)</h6>
+                                    <Row>
+                                        <Col md={6} className="mb-3">
+                                            <Label>Transaction ID</Label>
+                                            <Input
+                                                type="text"
+                                                value={transactionId}
+                                                onChange={(e) => setTransactionId(e.target.value)}
+                                                placeholder="e.g. UTR / reference no."
+                                            />
+                                        </Col>
+                                        <Col md={6} className="mb-3">
+                                            <Label>Transaction Image</Label>
+                                            <Input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => setTransactionImage(e.target.files?.[0] || null)}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <div className="mb-1">
+                                        <Label>Note (optional) — added to the request on approval / rejection</Label>
+                                        <Input
+                                            type="textarea"
+                                            rows={3}
+                                            value={note}
+                                            onChange={(e) => setNote(e.target.value)}
+                                            placeholder="Add a note for this decision..."
+                                        />
+                                    </div>
+                                </>
                             ) : (
-                                <div className="text-muted">This request has already been processed.</div>
+                                <>
+                                    <h6 className="text-uppercase text-muted mb-3 mt-2">Payout Proof</h6>
+                                    <Row>
+                                        <Detail label="Transaction ID" value={selected.transactionId} />
+                                        <Col md={6} className="mb-3">
+                                            <Label className="text-muted mb-1 d-block">Transaction Image</Label>
+                                            {selected.transactionImage ? (
+                                                <a href={selected.transactionImage} target="_blank" rel="noreferrer">
+                                                    <img
+                                                        src={selected.transactionImage}
+                                                        alt="transaction proof"
+                                                        style={{ maxWidth: "100%", maxHeight: 160, borderRadius: 6, objectFit: "cover" }}
+                                                    />
+                                                </a>
+                                            ) : (
+                                                <div className="fw-medium">-</div>
+                                            )}
+                                        </Col>
+                                    </Row>
+                                    <div className="text-muted">This request has already been processed.</div>
+                                </>
                             )}
                         </>
                     )}

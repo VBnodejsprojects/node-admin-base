@@ -35,7 +35,7 @@ export const updateVendorRequest = async (data, vendorId) => {
   }
 };
 
-export const getAllVendor = async ({ search = "", page = 1, limit = 10, status, accountStatus }) => {
+export const getAllVendor = async ({ search = "", page = 1, limit = 10, status, accountStatus, deleted = false, appVersion = "" }) => {
   page = page + 1;
   try {
     const params = new URLSearchParams({
@@ -50,6 +50,8 @@ export const getAllVendor = async ({ search = "", page = 1, limit = 10, status, 
     if (accountStatus) {
       params.append("accountStatus", accountStatus);
     }
+    params.append("deleted", deleted ? "true" : "false");
+    if (appVersion) params.append("appVersion", appVersion);
 
     const response = await get(`vendor/list/forAdmin?${params}`, { headers });
     return response;

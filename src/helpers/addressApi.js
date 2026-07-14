@@ -9,6 +9,7 @@ export const getAllAddress = async ({
   page = 1,
   limit = 10,
   userId = "",
+  deleted = false,
 }) => {
   page = page + 1;
   try {
@@ -18,6 +19,7 @@ export const getAllAddress = async ({
       limit: limit.toString(),
       userId,
     });
+    params.append("deleted", deleted ? "true" : "false");
 
     const response = await get(`address/list/forAdmin?${params}`, {
       headers,

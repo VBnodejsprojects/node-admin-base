@@ -27,6 +27,7 @@ import Flatpickr from "react-flatpickr";
 import { getAllAddress } from "../../helpers/addressApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
@@ -42,6 +43,7 @@ const Addresses = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedUser, setSelectedUser] = useState(userId || "");
   const [selectedVendor, setSelectedVendor] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
 
   const [viewModal, setViewModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -133,6 +135,7 @@ const Addresses = () => {
       search: globalFilter,
       page: pageIndex,
       limit: pageSize,
+      deleted: activeTab === "deleted",
       // userId: userId || "",
     });
     console.log(response);
@@ -327,7 +330,12 @@ const Addresses = () => {
   ];
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, globalFilter, selectedUser, selectedVendor]);
+  }, [pageIndex, pageSize, globalFilter, selectedUser, selectedVendor, activeTab]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setPageIndex(0);
+  };
 
   return (
     <div className="page-content">
@@ -337,6 +345,7 @@ const Addresses = () => {
         onCloseClick={() => setDeleteModal(false)}
       /> */}
       <h4><i className="bx bx-map" /> Address Management</h4>
+      <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}

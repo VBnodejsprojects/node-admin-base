@@ -28,8 +28,8 @@ export const updateCoupon = async (data) => {
     }
 };
 
-// GET /coupon/list/forAdmin — supports search, page, limit, from, to
-export const getAllCoupons = async ({ search = "", page = 1, limit = 10 }) => {
+// GET /coupon/list/forAdmin — supports search, page, limit, from, to, deleted, couponType, modelType
+export const getAllCoupons = async ({ search = "", page = 1, limit = 10, deleted = false, couponType = "", modelType = "" }) => {
     page = page + 1;
     try {
         const params = new URLSearchParams({
@@ -37,6 +37,9 @@ export const getAllCoupons = async ({ search = "", page = 1, limit = 10 }) => {
             page: page.toString(),
             limit: limit.toString(),
         });
+        params.append("deleted", deleted ? "true" : "false");
+        if (couponType) params.append("couponType", couponType);
+        if (modelType) params.append("modelType", modelType);
 
         const response = await get(`coupon/list/forAdmin?${params}`, { headers });
 

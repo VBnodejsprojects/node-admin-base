@@ -24,6 +24,8 @@ import {
 import { getAllVendorsListForFilter, getAllUsersListForFilter } from "../../helpers/filterApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
+import RecordTabs from "../../components/Common/RecordTabs";
+import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
@@ -44,6 +46,9 @@ const Coupons = () => {
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
+    const [couponTypeFilter, setCouponTypeFilter] = useState("");
+    const [modelTypeFilter, setModelTypeFilter] = useState("");
+    const [activeTab, setActiveTab] = useState("all");
     const [open, setOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [coupon, setCoupon] = useState();
@@ -56,7 +61,12 @@ const Coupons = () => {
         initialValues: {
             modelType: coupon?.modelType || "2",
             model: coupon?.model
-                ? { value: coupon.model._id || coupon.model, label: coupon.model.name || "" }
+                ? {
+                    value: coupon.model._id || coupon.model,
+                    label: coupon.model.mobileNo
+                        ? `${coupon.model.name} (${coupon.model.mobileNo})`
+                        : coupon.model.name || "",
+                }
                 : null,
             couponName: coupon?.couponName || "",
             couponPromoCode: coupon?.couponPromoCode || "",
@@ -134,6 +144,9 @@ const Coupons = () => {
             search: globalFilter,
             page: pageIndex,
             limit: pageSize,
+            deleted: activeTab === "deleted",
+            couponType: couponTypeFilter,
+            modelType: modelTypeFilter,
         });
         setData(res?.coupons || []);
         setTotalCount(res?.total || 0);
@@ -267,7 +280,12 @@ const Coupons = () => {
 
     useEffect(() => {
         fetchData();
-    }, [pageIndex, pageSize, globalFilter]);
+    }, [pageIndex, pageSize, globalFilter, activeTab, couponTypeFilter, modelTypeFilter]);
+
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        setPageIndex(0);
+    };
 
     // Load the relevant list when a "single" target type is chosen.
     useEffect(() => {
@@ -287,6 +305,7 @@ const Coupons = () => {
             />
 
             <h4><i className="bx bxs-discount" /> Coupons</h4>
+            <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
             <DataTableContainer
                 columns={columns}
                 data={data}
@@ -299,6 +318,33 @@ const Coupons = () => {
                 setPageSize={setPageSize}
                 globalFilter={globalFilter}
                 setGlobalFilter={setGlobalFilter}
+                filters={
+                    <>
+                        <FilterField label="Coupon Type">
+                            <select
+                                className="form-select"
+                                value={couponTypeFilter}
+                                onChange={(e) => { setCouponTypeFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                <option value="0">Percentage</option>
+                                <option value="1">Flat</option>
+                            </select>
+                        </FilterField>
+                        <FilterField label="Applies To">
+                            <select
+                                className="form-select"
+                                value={modelTypeFilter}
+                                onChange={(e) => { setModelTypeFilter(e.target.value); setPageIndex(0); }}
+                            >
+                                <option value="">All</option>
+                                {Object.keys(MODEL_TYPE).map((key) => (
+                                    <option key={key} value={key}>{MODEL_TYPE[key].label}</option>
+                                ))}
+                            </select>
+                        </FilterField>
+                    </>
+                }
                 SearchPlaceholder={"Search here..."}
                 isGlobalFilter={true}
                 isAddButton={true}
@@ -335,7 +381,7 @@ const Coupons = () => {
                                     isSearchable
                                     value={validation.values.model}
                                     onChange={(value) => validation.setFieldValue("model", value)}
-                                    options={vendorList.map((v) => ({ value: v._id, label: v.name }))}
+                                    options={vendorList.map((v) => ({ value: v._id, label: v.mobileNo ? `${v.name} (${v.mobileNo})` : v.name }))}
                                     styles={CustomStyles}
                                 />
                             </div>
@@ -350,7 +396,7 @@ const Coupons = () => {
                                     isSearchable
                                     value={validation.values.model}
                                     onChange={(value) => validation.setFieldValue("model", value)}
-                                    options={userList.map((u) => ({ value: u._id, label: u.name }))}
+                                    options={userList.map((u) => ({ value: u._id, label: u.mobileNo ? `${u.name} (${u.mobileNo})` : u.name }))}
                                     styles={CustomStyles}
                                 />
                             </div>

@@ -39,8 +39,8 @@ export const getUserProfile = async (userId) => {
   }
 };
 
-// GET /user/list/forAdmin — supports search, page, limit, from, to, status
-export const getAllUser = async ({ search = "", page = 1, limit = 10, status = "" }) => {
+// GET /user/list/forAdmin — supports search, page, limit, from, to, status, deleted
+export const getAllUser = async ({ search = "", page = 1, limit = 10, status = "", deleted = false, appVersion = "" }) => {
   page = page + 1;
 
   try {
@@ -50,6 +50,8 @@ export const getAllUser = async ({ search = "", page = 1, limit = 10, status = "
       limit: limit.toString(),
     });
     if (status) params.append("status", status);
+    params.append("deleted", deleted ? "true" : "false");
+    if (appVersion) params.append("appVersion", appVersion);
 
     return await get(`user/list/forAdmin?${params}`, { headers });
   } catch (error) {
