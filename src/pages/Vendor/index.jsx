@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
-import { getAllVendor, addVendor, updateVendor, deleteVendor } from "../../helpers/vendorApi";
+import { getAllVendor, addVendor, updateVendor } from "../../helpers/vendorApi";
 import { getVendorAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
@@ -11,6 +11,7 @@ import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
 import LocationMap from "../../components/Common/LocationMap";
+import { formatDateTime } from "../../utils/formatDate";
 import AddEditVendor from "./AddEditVendor";
 
 const Vendors = () => {
@@ -70,6 +71,14 @@ const Vendors = () => {
         const payload = { ...values };
         if (payload.lat === "" || payload.lat === null) delete payload.lat;
         if (payload.lng === "" || payload.lng === null) delete payload.lng;
+
+        // Admin-created vendors skip the approval flow — created already approved,
+        // active and verified (no status fields are shown on the Add form).
+        if (!isEdit) {
+          payload.status = "approved";
+          payload.isActive = true;
+          payload.isVerified = true;
+        }
 
         const response = isEdit
           ? await updateVendor(payload, vendor._id)
@@ -138,17 +147,18 @@ const Vendors = () => {
   const handleRestore = async (data) => {
     const response = await updateVendor({ isDeleted: false }, data._id);
     if (response?.type === "success") {
-      ShowToast.success(response.message || "Vendor restored");
+      ShowToast.success("Vendor restored successfully");
       fetchData();
     } else {
       ShowToast.error(response?.message || "Failed to restore vendor");
     }
   };
 
+  // Soft delete via the existing update endpoint (isDeleted → true).
   const handleDelete = async () => {
-    const response = await deleteVendor(vendor._id);
+    const response = await updateVendor({ isDeleted: true }, vendor._id);
     if (response?.type === "success") {
-      ShowToast.success(response.message || "Vendor deleted");
+      ShowToast.success("Vendor deleted successfully");
       fetchData();
       setDeleteModal(false);
       setVendor(null);
@@ -227,11 +237,16 @@ const Vendors = () => {
       ),
     },
     {
+      header: "Created At",
+      accessorKey: "createdAt",
+      cell: ({ row }) => formatDateTime(row.original.createdAt),
+    },
+    {
       header: "Action",
       accessorKey: "action",
       cell: (cellProps) => (
         <div className="d-flex gap-3">
-          {activeTab === "deleted" ? (
+          {cellProps.row.original.isDeleted ? (
             <Link to="#" className="text-success" onClick={() => handleRestore(cellProps.row.original)}>
               <i className="mdi mdi-restore font-size-18" title="Restore" />
             </Link>
@@ -266,8 +281,17 @@ const Vendors = () => {
         { name: "name", label: "Name", type: "text", required: true },
         { name: "email", label: "Email", type: "text" },
         { name: "mobileNo", label: "Mobile No", type: "text", required: true },
-        { name: "gender", label: "Gender", type: "text" },
-        { name: "dateOfBirth", label: "Date of Birth", type: "text" },
+        {
+          name: "gender",
+          label: "Gender",
+          type: "select",
+          options: [
+            { key: "male", label: "Male" },
+            { key: "female", label: "Female" },
+            { key: "other", label: "Other" },
+          ],
+        },
+        { name: "dateOfBirth", label: "Date of Birth", type: "date" },
         { name: "language", label: "Language", type: "text" },
       ],
     },
@@ -287,6 +311,7 @@ const Vendors = () => {
             cityField="city"
             stateField="state"
             pincodeField="pincode"
+            countryField="country"
             height="280px"
           />
         </>
@@ -309,27 +334,36 @@ const Vendors = () => {
         { name: "ifscCode", label: "IFSC Code", type: "text" },
       ],
     },
-    {
-      title: "Status & Approval",
-      fields: [
-        {
-          name: "status",
-          label: "Status",
-          type: "select",
-          options: [
-            { key: "Incomplete", label: "Incomplete" },
-            { key: "pending", label: "Pending" },
-            { key: "approved", label: "Approved" },
-            { key: "rejected", label: "Rejected" },
-          ],
-        },
-        { name: "reasonForRejection", label: "Reason For Rejection", type: "text", fullWidth: true },
-        { name: "isActive", label: "Active", type: "select", isBoolean: true },
-        { name: "isVerified", label: "Verified", type: "select", isBoolean: true },
-        { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true },
-        { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true },
-      ],
-    },
+    // Status & approval is admin-managed on EDIT only. On ADD there's no approval
+    // step — the vendor is created already approved (see onSubmit).
+    ...(isEdit
+      ? [
+          {
+            title: "Status & Approval",
+            fields: [
+              {
+                name: "status",
+                label: "Status",
+                type: "select",
+                options: [
+                  { key: "Incomplete", label: "Incomplete" },
+                  { key: "pending", label: "Pending" },
+                  { key: "approved", label: "Approved" },
+                  { key: "rejected", label: "Rejected" },
+                ],
+              },
+              // Reason shows only when the status is "rejected".
+              ...(validation.values.status === "rejected"
+                ? [{ name: "reasonForRejection", label: "Reason For Rejection", type: "text", fullWidth: true }]
+                : []),
+              { name: "isActive", label: "Active", type: "select", isBoolean: true },
+              { name: "isVerified", label: "Verified", type: "select", isBoolean: true },
+              { name: "isBlocked", label: "Blocked", type: "select", isBoolean: true },
+              { name: "isDeleted", label: "Deleted", type: "select", isBoolean: true },
+            ],
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {

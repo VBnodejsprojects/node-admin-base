@@ -28,6 +28,7 @@ import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DynamicFormFields from "../../components/Common/DynamicFormFields";
 import { CustomStyles } from "../../components/Common/MultiSelect";
+import { formatDateTime } from "../../utils/formatDate";
 
 const OWNER_TYPES = [
     { key: "Vendor", label: "Vendor" },
@@ -179,7 +180,7 @@ const WalletTransactions = () => {
         {
             header: "Date",
             accessorKey: "createdAt",
-            cell: ({ row }) => (row.original.createdAt ? new Date(row.original.createdAt).toLocaleString() : "-"),
+            cell: ({ row }) => formatDateTime(row.original.createdAt),
         },
     ];
 

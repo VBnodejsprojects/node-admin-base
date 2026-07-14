@@ -192,7 +192,7 @@ const Coupons = () => {
             header: "Action",
             accessorKey: "action",
             cell: ({ row }) =>
-                activeTab === "deleted" ? (
+                row.original.isDeleted ? (
                     <div className="d-flex gap-3">
                         <Link to="#" className="text-success" onClick={() => handleRestore(row.original)}>
                             <i className="mdi mdi-restore font-size-18" title="Restore" />
@@ -276,24 +276,8 @@ const Coupons = () => {
     ];
 
     const editFields = [
-        {
-            name: "isActive",
-            label: "Is Active",
-            type: "select",
-            options: [
-                { key: "true", label: "Yes" },
-                { key: "false", label: "No" },
-            ],
-        },
-        {
-            name: "isDeleted",
-            label: "Is Deleted",
-            type: "select",
-            options: [
-                { key: "false", label: "No" },
-                { key: "true", label: "Yes" },
-            ],
-        },
+        { name: "isActive", label: "Is Active", type: "select", isBoolean: true },
+        { name: "isDeleted", label: "Is Deleted", type: "select", isBoolean: true },
     ];
 
     useEffect(() => {

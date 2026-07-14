@@ -19,6 +19,7 @@ const LocationMap = ({
     cityField = "",
     stateField = "",
     pincodeField = "",
+    countryField = "",
     initialValues = null,
     disabled = false,
 }) => {
@@ -65,7 +66,7 @@ const LocationMap = ({
             validation.setFieldValue('lng', lng);
         }
 
-        if (validation && (addressField || cityField || stateField || pincodeField)) {
+        if (validation && (addressField || cityField || stateField || pincodeField || countryField)) {
             const response = await fetch(
                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${MAP_API_KEY}`
             );
@@ -84,14 +85,10 @@ const LocationMap = ({
                 let city = null;
                 let state = null;
                 let postalCode = null;
-
-                console.log("Geocoding response:", addressComponents); // Debug log for address components
-
+                let country = null;
 
                 addressComponents.forEach((component) => {
                     const types = component.types;
-
-                    console.log("Component types:", types); // Debug log for component types
 
                     if (!city && (types.includes('locality') || types.includes('postal_town') || types.includes('administrative_area_level_2'))) {
                         city = component.long_name;
@@ -101,6 +98,9 @@ const LocationMap = ({
                     }
                     if (!postalCode && types.includes('postal_code')) {
                         postalCode = component.long_name;
+                    }
+                    if (!country && types.includes('country')) {
+                        country = component.long_name;
                     }
                 });
 
@@ -112,6 +112,9 @@ const LocationMap = ({
                 }
                 if (pincodeField && postalCode) {
                     validation.setFieldValue(pincodeField, postalCode);
+                }
+                if (countryField && country) {
+                    validation.setFieldValue(countryField, country);
                 }
             }
         }

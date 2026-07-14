@@ -7,10 +7,30 @@ const DynamicFormFields = ({ formFields = [], validation }) => {
             <Col className="col-12">
                 {formFields.map((field) => (
                     <div className="mb-3" key={field.name}>
-                        <Label for={field.name}>{field.label}</Label>
+                        <Label for={field.name} className="d-block">{field.label}</Label>
 
-                        {/* Select Dropdown */}
-                        {field.type === "select" ? (
+                        {/* Boolean → toggle switch */}
+                        {field.isBoolean ? (
+                            (() => {
+                                const raw = validation.values[field.name];
+                                const checked = raw === true || raw === "true";
+                                return (
+                                    <div className="form-check form-switch form-switch-md">
+                                        <input
+                                            id={field.name}
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            checked={checked}
+                                            disabled={field.readOnly}
+                                            onChange={() => validation.setFieldValue(field.name, !checked)}
+                                        />
+                                        <label className="form-check-label ms-1" htmlFor={field.name}>
+                                            {checked ? "Yes" : "No"}
+                                        </label>
+                                    </div>
+                                );
+                            })()
+                        ) : field.type === "select" ? (
                             <Input
                                 name={field.name}
                                 type="select"

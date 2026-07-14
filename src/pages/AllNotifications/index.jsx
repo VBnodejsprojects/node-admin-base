@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Badge } from "reactstrap";
+import { formatDateTime } from "../../utils/formatDate";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
@@ -70,10 +71,7 @@ const AllNotifications = () => {
         {
             header: "Sent At",
             accessorKey: "createdAt",
-            cell: ({ row }) => {
-                const value = row.original.createdAt;
-                return value ? new Date(value).toLocaleString() : "-";
-            },
+            cell: ({ row }) => formatDateTime(row.original.createdAt),
         },
     ];
 

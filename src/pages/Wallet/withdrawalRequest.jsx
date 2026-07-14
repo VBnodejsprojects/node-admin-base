@@ -21,6 +21,7 @@ import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
+import { formatDateTime } from "../../utils/formatDate";
 
 const WithdrawalRequest = () => {
     const [data, setData] = useState([]);
@@ -152,7 +153,7 @@ const WithdrawalRequest = () => {
         {
             header: "Requested At",
             accessorKey: "createdAt",
-            cell: ({ row }) => (row.original.createdAt ? new Date(row.original.createdAt).toLocaleString() : "-"),
+            cell: ({ row }) => formatDateTime(row.original.createdAt),
         },
         {
             header: "Action",
@@ -303,7 +304,7 @@ const WithdrawalRequest = () => {
                                 <Detail label="Description" value={selected.description} />
                                 <Detail
                                     label="Requested At"
-                                    value={selected.createdAt ? new Date(selected.createdAt).toLocaleString() : "-"}
+                                    value={formatDateTime(selected.createdAt)}
                                 />
                             </Row>
 

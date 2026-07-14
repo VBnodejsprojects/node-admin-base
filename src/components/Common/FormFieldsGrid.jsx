@@ -14,8 +14,29 @@ const getDisplayValue = (field, validation) => {
     return raw === undefined || raw === null || raw === "" ? "-" : String(raw);
 };
 
-// Renders an editable control (select / date / text-like).
+// Renders an editable control (toggle / select / date / text-like).
 const renderControl = (field, validation) => {
+    // Boolean fields render as a toggle switch instead of a Yes/No dropdown.
+    if (field.isBoolean) {
+        const raw = validation.values[field.name];
+        const checked = raw === true || raw === "true";
+        return (
+            <div className="form-check form-switch form-switch-md pt-1">
+                <input
+                    id={field.name}
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={checked}
+                    disabled={field.disabled}
+                    onChange={() => validation.setFieldValue(field.name, !checked)}
+                />
+                <label className="form-check-label ms-1" htmlFor={field.name}>
+                    {checked ? "Yes" : "No"}
+                </label>
+            </div>
+        );
+    }
+
     if (field.type === "select") {
         return (
             <Input

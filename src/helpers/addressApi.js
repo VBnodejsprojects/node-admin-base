@@ -1,4 +1,4 @@
-import { get, post, put } from "./api_helper";
+import { get, put } from "./api_helper";
 
 const headers = {
   "Content-Type": "application/json",
@@ -42,20 +42,6 @@ export const restoreAddress = async (id) => {
     return await put(`address/restore/${id}`, {}, { headers: addressHeaders });
   } catch (error) {
     console.error("Error restoring address:", error);
-    return error;
-  }
-};
-
-export const addAddress = async (data) => {
-  try {
-    const adminToken = localStorage.getItem("adminToken");
-    const addressHeaders = {
-      Authorization: adminToken,
-      "Content-Type": "application/json",
-    };
-    return await post("address/add/byAdmin", data, { headers: addressHeaders });
-  } catch (error) {
-    console.error("Error adding address:", error);
     return error;
   }
 };

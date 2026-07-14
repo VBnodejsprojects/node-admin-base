@@ -27,7 +27,6 @@ import Flatpickr from "react-flatpickr";
 import { getAllAddress, restoreAddress } from "../../helpers/addressApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
-import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
@@ -265,7 +264,7 @@ const Addresses = () => {
                 View
               </UncontrolledTooltip>
             </Link>
-            {activeTab === "deleted" && (
+            {cellProps.row.original.isDeleted && (
               <Link
                 to="#"
                 className="text-success"
@@ -368,7 +367,6 @@ const Addresses = () => {
         onCloseClick={() => setDeleteModal(false)}
       /> */}
       <h4><i className="bx bx-map" /> Address Management</h4>
-      <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
       <DataTableContainer
         columns={columns}
         fetchData={fetchData}

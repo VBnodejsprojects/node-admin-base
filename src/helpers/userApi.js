@@ -1,4 +1,4 @@
-import { get, post, put, del } from "./api_helper";
+import { get, post, put } from "./api_helper";
 import { processFormData } from "../utils/processFromData";
 
 const adminToken = localStorage.getItem("adminToken");
@@ -60,11 +60,3 @@ export const getAllUser = async ({ search = "", page = 1, limit = 10, status = "
   }
 };
 
-export const deleteUser = async (id) => {
-  try {
-    return await del(`user/byAdmin/${id}`, { headers });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    return error;
-  }
-};

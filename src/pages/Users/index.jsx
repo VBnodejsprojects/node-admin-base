@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
-import { getAllUser, addUser, updateUser, deleteUser } from "../../helpers/userApi";
+import { getAllUser, addUser, updateUser } from "../../helpers/userApi";
 import { getUserAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
@@ -10,6 +10,7 @@ import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
 import DeleteModal from "../../components/Common/DeleteModal";
+import { formatDateTime } from "../../utils/formatDate";
 import AddEditUser from "./AddEditUser";
 
 const Users = () => {
@@ -104,17 +105,18 @@ const Users = () => {
   const handleRestore = async (rowUser) => {
     const response = await updateUser({ isDeleted: false }, rowUser._id);
     if (response?.type === "success") {
-      ShowToast.success(response.message || "User restored");
+      ShowToast.success("User restored successfully");
       fetchData();
     } else {
       ShowToast.error(response?.message || "Failed to restore user");
     }
   };
 
+  // Soft delete via the existing update endpoint (isDeleted → true).
   const handleDelete = async () => {
-    const response = await deleteUser(user._id);
+    const response = await updateUser({ isDeleted: true }, user._id);
     if (response?.type === "success") {
-      ShowToast.success(response.message || "User deleted");
+      ShowToast.success("User deleted successfully");
       fetchData();
       setDeleteModal(false);
       setUser(null);
@@ -184,11 +186,16 @@ const Users = () => {
       ),
     },
     {
+      header: "Created At",
+      accessorKey: "createdAt",
+      cell: ({ row }) => formatDateTime(row.original.createdAt),
+    },
+    {
       header: "Action",
       accessorKey: "action",
       cell: (cellProps) => (
         <div className="d-flex gap-3">
-          {activeTab === "deleted" ? (
+          {cellProps.row.original.isDeleted ? (
             <Link
               to="#"
               className="text-success"
