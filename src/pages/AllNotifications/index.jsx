@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Badge } from "reactstrap";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
 import EntityCell from "../../components/Common/EntityCell";
@@ -50,11 +51,6 @@ const AllNotifications = () => {
             cell: ({ row }) => row.original.message || "-",
         },
         {
-            header: "Recipient Type",
-            accessorKey: "modelName",
-            cell: ({ row }) => row.original.modelName || "-",
-        },
-        {
             header: "Audience",
             accessorKey: "modelType",
             cell: ({ row }) => TARGET_LABEL[row.original.modelType] || "-",
@@ -62,7 +58,14 @@ const AllNotifications = () => {
         {
             header: "Recipient",
             accessorKey: "model",
-            cell: ({ row }) => (row.original.model ? <EntityCell entity={row.original.model} /> : "All"),
+            cell: ({ row }) => (
+                <div className="d-flex align-items-center gap-2">
+                    {row.original.model ? <EntityCell entity={row.original.model} /> : "All"}
+                    {row.original.modelName ? (
+                        <Badge color="light" className="text-dark">{row.original.modelName}</Badge>
+                    ) : null}
+                </div>
+            ),
         },
         {
             header: "Sent At",

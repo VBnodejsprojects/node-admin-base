@@ -176,11 +176,17 @@ const HelpSupport = () => {
         );
       },
     },
-    { header: "UserType", accessorKey: "createdByModel", cell: ({ row }) => row.original.createdByModel || "N/A" },
     {
       header: "Raised By",
       accessorKey: "createdBy",
-      cell: ({ row }) => <EntityCell entity={row.original.createdBy} showImage={false} />,
+      cell: ({ row }) => (
+        <div className="d-flex align-items-center gap-2">
+          <EntityCell entity={row.original.createdBy} showImage={false} />
+          {row.original.createdByModel ? (
+            <Badge color="light" className="text-dark">{row.original.createdByModel}</Badge>
+          ) : null}
+        </div>
+      ),
     },
 
     {
