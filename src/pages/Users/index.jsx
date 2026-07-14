@@ -239,6 +239,13 @@ const Users = () => {
   const fieldGroups = [
     {
       title: "Basic Information",
+      // Wallet balance is read-only info shown only when editing an existing user.
+      content: isEdit ? (
+        <div className="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+          <span className="text-muted">Wallet Balance</span>
+          <span className="fw-semibold">₹ {Number(user?.walletAmount || 0).toFixed(2)}</span>
+        </div>
+      ) : null,
       fields: [
         { name: "name", label: "Name", type: "text", required: true },
         { name: "email", label: "Email", type: "email" },

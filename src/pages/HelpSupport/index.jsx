@@ -166,13 +166,22 @@ const HelpSupport = () => {
       header: "Help Image",
       accessorKey: "helpImage",
       cell: (cellProps) => {
-        return (
+        const img = cellProps.row.original.helpImage;
+        const thumb = (
           <img
-            src={cellProps.row.original.helpImage || "vite.svg"}
+            src={img || "vite.svg"}
             alt="help"
-            className="img-fluid rounded-circle"
-            style={{ width: "40px", height: "40px", objectFit: "cover" }}
+            className="img-fluid rounded"
+            style={{ width: "44px", height: "44px", objectFit: "cover" }}
           />
+        );
+        // Clickable preview (opens the full image in a new tab) when one exists.
+        return img ? (
+          <a href={img} target="_blank" rel="noreferrer" title="Preview image">
+            {thumb}
+          </a>
+        ) : (
+          thumb
         );
       },
     },
@@ -190,29 +199,12 @@ const HelpSupport = () => {
     },
 
     {
-      header: "Solution",
-      accessorKey: "response",
-      cell: ({ row }) => (
-        <div style={{ width: 260, whiteSpace: "normal", wordBreak: "break-word" }}>
-          {row.original.response || "N/A"}
-        </div>
-      ),
-    },
-    {
-      header: "Subject",
+      header: "Subject & Comment",
       accessorKey: "subject",
       cell: ({ row }) => (
-        <div style={{ width: 180, whiteSpace: "normal", wordBreak: "break-word" }}>
-          {row.original.subject || "N/A"}
-        </div>
-      ),
-    },
-    {
-      header: "Comment",
-      accessorKey: "comment",
-      cell: ({ row }) => (
-        <div style={{ width: 240, whiteSpace: "normal", wordBreak: "break-word" }}>
-          {row.original.comment || "N/A"}
+        <div style={{ width: 300, whiteSpace: "normal", wordBreak: "break-word" }}>
+          <div className="fw-semibold">{row.original.subject || "N/A"}</div>
+          <div className="text-muted small">{row.original.comment || "-"}</div>
         </div>
       ),
     },
