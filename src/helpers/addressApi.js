@@ -1,4 +1,4 @@
-import { get, post } from "./api_helper";
+import { get, post, put } from "./api_helper";
 
 const headers = {
   "Content-Type": "application/json",
@@ -28,6 +28,21 @@ export const getAllAddress = async ({
   } catch (error) {
     console.error("Error fetching banner data:", error);
     return { addresses: [], totalPages: 0, currentPage: 0, totalAddresses: 0 };
+  }
+};
+
+// PUT /address/restore/:id — admin restores a soft-deleted address (isDeleted → false)
+export const restoreAddress = async (id) => {
+  try {
+    const adminToken = localStorage.getItem("adminToken");
+    const addressHeaders = {
+      Authorization: adminToken,
+      "Content-Type": "application/json",
+    };
+    return await put(`address/restore/${id}`, {}, { headers: addressHeaders });
+  } catch (error) {
+    console.error("Error restoring address:", error);
+    return error;
   }
 };
 

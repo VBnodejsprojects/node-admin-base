@@ -176,27 +176,45 @@ const Coupons = () => {
         }
     };
 
+    // Restore a soft-deleted coupon → clears isDeleted so it returns to the All tab.
+    const handleRestore = async (row) => {
+        const res = await updateCoupon({ couponId: row._id, isDeleted: false });
+        if (res?.type === "success") {
+            ShowToast.success(res.message || "Coupon restored");
+            fetchData();
+        } else {
+            ShowToast.error(res?.message || "Failed to restore coupon");
+        }
+    };
+
     const columns = [
         {
             header: "Action",
             accessorKey: "action",
-            cell: ({ row }) => (
-                <div className="d-flex gap-3">
-                    <Link to="#" className="text-success" onClick={() => handleEdit(row.original)}>
-                        <i className="mdi mdi-pencil font-size-18" />
-                    </Link>
-                    <Link
-                        to="#"
-                        className="text-danger"
-                        onClick={() => {
-                            setCoupon(row.original);
-                            setDeleteModal(true);
-                        }}
-                    >
-                        <i className="mdi mdi-delete font-size-18" />
-                    </Link>
-                </div>
-            ),
+            cell: ({ row }) =>
+                activeTab === "deleted" ? (
+                    <div className="d-flex gap-3">
+                        <Link to="#" className="text-success" onClick={() => handleRestore(row.original)}>
+                            <i className="mdi mdi-restore font-size-18" title="Restore" />
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="d-flex gap-3">
+                        <Link to="#" className="text-success" onClick={() => handleEdit(row.original)}>
+                            <i className="mdi mdi-pencil font-size-18" />
+                        </Link>
+                        <Link
+                            to="#"
+                            className="text-danger"
+                            onClick={() => {
+                                setCoupon(row.original);
+                                setDeleteModal(true);
+                            }}
+                        >
+                            <i className="mdi mdi-delete font-size-18" />
+                        </Link>
+                    </div>
+                ),
         },
         { header: "Name", accessorKey: "couponName" },
         { header: "Promo Code", accessorKey: "couponPromoCode" },

@@ -1,5 +1,4 @@
 import { get, post, put, del } from "./api_helper";
-import { processFormData } from "../utils/processFromData";
 
 const adminToken = localStorage.getItem("adminToken");
 
@@ -10,9 +9,9 @@ const headers = {
 
 export const addVendor = async (data) => {
   try {
-    const formData = processFormData(data);
-    return await post("vendor/add", formData, { headers });
+    return await post("vendor/add/byAdmin", data, { headers });
   } catch (error) {
+    console.error("Error adding vendor:", error);
     return error;
   }
 };

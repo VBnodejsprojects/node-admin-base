@@ -24,7 +24,7 @@ import {
 
 import Flatpickr from "react-flatpickr";
 
-import { getAllAddress } from "../../helpers/addressApi";
+import { getAllAddress, restoreAddress } from "../../helpers/addressApi";
 
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import RecordTabs from "../../components/Common/RecordTabs";
@@ -56,6 +56,17 @@ const Addresses = () => {
   const toggleViewModal = () => {
     setViewModal((prev) => !prev);
     if (viewModal) setSelectedAddress(null);
+  };
+
+  // Restore a soft-deleted address → clears isDeleted so it returns to the All tab.
+  const handleRestore = async (row) => {
+    const response = await restoreAddress(row._id);
+    if (response?.type === "success") {
+      ShowToast.success(response.message || "Address restored");
+      fetchData();
+    } else {
+      ShowToast.error(response?.message || "Failed to restore address");
+    }
   };
 
 
@@ -254,6 +265,18 @@ const Addresses = () => {
                 View
               </UncontrolledTooltip>
             </Link>
+            {activeTab === "deleted" && (
+              <Link
+                to="#"
+                className="text-success"
+                onClick={() => handleRestore(cellProps.row.original)}
+              >
+                <i className="mdi mdi-restore font-size-18" id="restoretooltip" />
+                <UncontrolledTooltip placement="top" target="restoretooltip">
+                  Restore
+                </UncontrolledTooltip>
+              </Link>
+            )}
           </div>
         );
       },

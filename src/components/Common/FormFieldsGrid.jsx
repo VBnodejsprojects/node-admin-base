@@ -85,6 +85,7 @@ const FormFieldsGrid = ({ groups = [], validation }) => (
                     <i className="bx bx-chevron-right" />
                     {group.title}
                 </h6>
+                {group.content ? <div className="mb-3">{group.content}</div> : null}
                 <Row className="gx-3 gy-3">
                     {group.fields.map((field) =>
                         field.readOnly ? (

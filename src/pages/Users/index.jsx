@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
-import { getAllUser, addUser, updateUser } from "../../helpers/userApi";
+import { getAllUser, addUser, updateUser, deleteUser } from "../../helpers/userApi";
 import { getUserAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
 import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
+import DeleteModal from "../../components/Common/DeleteModal";
 import AddEditUser from "./AddEditUser";
 
 const Users = () => {
@@ -24,6 +25,7 @@ const Users = () => {
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [user, setUser] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false);
 
   const validation = useFormik({
     enableReinitialize: true,
@@ -98,6 +100,29 @@ const Users = () => {
     setOpen(true);
   };
 
+  // Restore a soft-deleted user → clears isDeleted so it returns to the All tab.
+  const handleRestore = async (rowUser) => {
+    const response = await updateUser({ isDeleted: false }, rowUser._id);
+    if (response?.type === "success") {
+      ShowToast.success(response.message || "User restored");
+      fetchData();
+    } else {
+      ShowToast.error(response?.message || "Failed to restore user");
+    }
+  };
+
+  const handleDelete = async () => {
+    const response = await deleteUser(user._id);
+    if (response?.type === "success") {
+      ShowToast.success(response.message || "User deleted");
+      fetchData();
+      setDeleteModal(false);
+      setUser(null);
+    } else {
+      ShowToast.error(response?.message || "Failed to delete user");
+    }
+  };
+
   const columns = [
     {
       header: "User",
@@ -163,13 +188,35 @@ const Users = () => {
       accessorKey: "action",
       cell: (cellProps) => (
         <div className="d-flex gap-3">
-          <Link
-            to="#"
-            className="text-success"
-            onClick={() => onClickEdit(cellProps.row.original)}
-          >
-            <i className="mdi mdi-pencil font-size-18" />
-          </Link>
+          {activeTab === "deleted" ? (
+            <Link
+              to="#"
+              className="text-success"
+              onClick={() => handleRestore(cellProps.row.original)}
+            >
+              <i className="mdi mdi-restore font-size-18" title="Restore" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="#"
+                className="text-success"
+                onClick={() => onClickEdit(cellProps.row.original)}
+              >
+                <i className="mdi mdi-pencil font-size-18" />
+              </Link>
+              <Link
+                to="#"
+                className="text-danger"
+                onClick={() => {
+                  setUser(cellProps.row.original);
+                  setDeleteModal(true);
+                }}
+              >
+                <i className="mdi mdi-delete font-size-18" />
+              </Link>
+            </>
+          )}
         </div>
       ),
     },
@@ -179,8 +226,9 @@ const Users = () => {
   //  - add:    POST /user/add/byAdmin  → name, mobileNo, email, gender, dateOfBirth, language
   //  - update: PUT  /user/profile/:id  → the above + status flags (admin-only)
   //
-  // On EDIT, identity/profile is read-only (the user owns it) and only the status
-  // flags are editable. On ADD, the basic fields are editable so admins can create.
+  // Every field is admin-editable on both add and edit; only the wallet balance
+  // is excluded (it's adjusted through wallet transactions, and the backend
+  // schema drops walletAmount anyway). Status flags show on edit only.
   const fieldGroups = [
     {
       title: "Basic Information",
@@ -188,22 +236,18 @@ const Users = () => {
         { name: "name", label: "Name", type: "text", required: true },
         { name: "email", label: "Email", type: "email" },
         { name: "mobileNo", label: "Mobile No", type: "text", required: true },
-        isEdit
-          ? { name: "gender", label: "Gender", type: "text", readOnly: true }
-          : {
-              name: "gender",
-              label: "Gender",
-              type: "select",
-              options: [
-                { key: "male", label: "Male" },
-                { key: "female", label: "Female" },
-                { key: "other", label: "Other" },
-              ],
-            },
-        isEdit
-          ? { name: "dateOfBirth", label: "Date of Birth", type: "text", readOnly: true }
-          : { name: "dateOfBirth", label: "Date of Birth", type: "date" },
-        { name: "language", label: "Language", type: "text", readOnly: isEdit },
+        {
+          name: "gender",
+          label: "Gender",
+          type: "select",
+          options: [
+            { key: "male", label: "Male" },
+            { key: "female", label: "Female" },
+            { key: "other", label: "Other" },
+          ],
+        },
+        { name: "dateOfBirth", label: "Date of Birth", type: "date" },
+        { name: "language", label: "Language", type: "text" },
       ],
     },
     // Status controls — edit only (admin can block / verify / activate / delete)
@@ -237,6 +281,11 @@ const Users = () => {
 
   return (
     <div className="page-content">
+      <DeleteModal
+        show={deleteModal}
+        onDeleteClick={handleDelete}
+        onCloseClick={() => setDeleteModal(false)}
+      />
       <h4>
         <i className="bx bx-user" /> Users
       </h4>

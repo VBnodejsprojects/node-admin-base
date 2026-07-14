@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 
-import { getAllVendor, updateVendor } from "../../helpers/vendorApi";
+import { getAllVendor, addVendor, updateVendor, deleteVendor } from "../../helpers/vendorApi";
 import { getVendorAppVersions } from "../../helpers/filterApi";
 import DataTableContainer from "../../components/Common/DataTabelContainer";
 import FilterField from "../../components/Common/FilterField";
 import RecordTabs from "../../components/Common/RecordTabs";
 import EntityCell from "../../components/Common/EntityCell";
 import { ShowToast } from "../../components/Toast";
+import DeleteModal from "../../components/Common/DeleteModal";
+import LocationMap from "../../components/Common/LocationMap";
 import AddEditVendor from "./AddEditVendor";
 
 const Vendors = () => {
@@ -27,6 +29,7 @@ const Vendors = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [vendor, setVendor] = useState();
   const [selectedFiles, setSelectedFiles] = useState({});
+  const [deleteModal, setDeleteModal] = useState(false);
 
   // Only fields the backend PUT /vendor/profile/:id accepts (vendorValidation.updateProfile).
   // `status` / status-flags are server-controlled → display-only columns.
@@ -49,6 +52,9 @@ const Vendors = () => {
       bankName: vendor?.bankName || "",
       accountNumber: vendor?.accountNumber || "",
       ifscCode: vendor?.ifscCode || "",
+      // GeoJSON location.coordinates is [lng, lat]; the map reads/writes lat/lng.
+      lat: vendor?.location?.coordinates?.[1] ?? "",
+      lng: vendor?.location?.coordinates?.[0] ?? "",
       status: vendor?.status || "",
       reasonForRejection: vendor?.reasonForRejection || "",
       isActive: vendor?.isActive ?? true,
@@ -59,7 +65,15 @@ const Vendors = () => {
 
     onSubmit: async (values) => {
       try {
-        const response = await updateVendor(values, vendor._id);
+        // Drop lat/lng when unset so the numeric backend validation doesn't 400
+        // on an empty string; the map fills them when a location is chosen.
+        const payload = { ...values };
+        if (payload.lat === "" || payload.lat === null) delete payload.lat;
+        if (payload.lng === "" || payload.lng === null) delete payload.lng;
+
+        const response = isEdit
+          ? await updateVendor(payload, vendor._id)
+          : await addVendor(payload);
 
         if (response?.type === "success") {
           ShowToast.success(response.message || "Operation successful");
@@ -118,6 +132,29 @@ const Vendors = () => {
     setVendor(data);
     setIsEdit(true);
     setOpen(true);
+  };
+
+  // Restore a soft-deleted vendor → clears isDeleted so it returns to the All tab.
+  const handleRestore = async (data) => {
+    const response = await updateVendor({ isDeleted: false }, data._id);
+    if (response?.type === "success") {
+      ShowToast.success(response.message || "Vendor restored");
+      fetchData();
+    } else {
+      ShowToast.error(response?.message || "Failed to restore vendor");
+    }
+  };
+
+  const handleDelete = async () => {
+    const response = await deleteVendor(vendor._id);
+    if (response?.type === "success") {
+      ShowToast.success(response.message || "Vendor deleted");
+      fetchData();
+      setDeleteModal(false);
+      setVendor(null);
+    } else {
+      ShowToast.error(response?.message || "Failed to delete vendor");
+    }
   };
 
   const fetchVersionOptions = async () => {
@@ -194,16 +231,34 @@ const Vendors = () => {
       accessorKey: "action",
       cell: (cellProps) => (
         <div className="d-flex gap-3">
-          <Link to="#" className="text-success" onClick={() => onClickEdit(cellProps.row.original)}>
-            <i className="mdi mdi-pencil font-size-18" />
-          </Link>
+          {activeTab === "deleted" ? (
+            <Link to="#" className="text-success" onClick={() => handleRestore(cellProps.row.original)}>
+              <i className="mdi mdi-restore font-size-18" title="Restore" />
+            </Link>
+          ) : (
+            <>
+              <Link to="#" className="text-success" onClick={() => onClickEdit(cellProps.row.original)}>
+                <i className="mdi mdi-pencil font-size-18" />
+              </Link>
+              <Link
+                to="#"
+                className="text-danger"
+                onClick={() => {
+                  setVendor(cellProps.row.original);
+                  setDeleteModal(true);
+                }}
+              >
+                <i className="mdi mdi-delete font-size-18" />
+              </Link>
+            </>
+          )}
         </div>
       ),
     },
   ];
 
-  // Grouped fields. Identity, contact and location are read-only (managed by the
-  // vendor themselves); only Bank Details and Status/Approval are admin-editable.
+  // Grouped fields. Every field is admin-editable (on both add and edit); only
+  // the wallet balance is excluded — it's adjusted through wallet transactions.
   const fieldGroups = [
     {
       title: "Basic Information",
@@ -211,29 +266,47 @@ const Vendors = () => {
         { name: "name", label: "Name", type: "text", required: true },
         { name: "email", label: "Email", type: "text" },
         { name: "mobileNo", label: "Mobile No", type: "text", required: true },
-        { name: "gender", label: "Gender", type: "text", readOnly: true },
-        { name: "dateOfBirth", label: "Date of Birth", type: "text", readOnly: true },
-        { name: "language", label: "Language", type: "text", readOnly: true },
+        { name: "gender", label: "Gender", type: "text" },
+        { name: "dateOfBirth", label: "Date of Birth", type: "text" },
+        { name: "language", label: "Language", type: "text" },
       ],
     },
     {
       title: "Location",
+      // Map lives in the same section as the address fields; searching or
+      // dragging the pin fills Address / City / State / Pincode + lat/lng.
+      content: (
+        <>
+          <p className="text-muted small mb-2">Search an address or drag the pin to set the location.</p>
+          <LocationMap
+            lat={validation.values.lat}
+            lng={validation.values.lng}
+            editable={true}
+            validation={validation}
+            addressField="address"
+            cityField="city"
+            stateField="state"
+            pincodeField="pincode"
+            height="280px"
+          />
+        </>
+      ),
       fields: [
-        { name: "address", label: "Address", type: "text", readOnly: true, fullWidth: true },
-        { name: "manualAddress", label: "Manual Address", type: "text", readOnly: true, fullWidth: true },
-        { name: "city", label: "City", type: "text", readOnly: true },
-        { name: "state", label: "State", type: "text", readOnly: true },
-        { name: "country", label: "Country", type: "text", readOnly: true },
-        { name: "pincode", label: "Pincode", type: "text", readOnly: true },
+        { name: "address", label: "Address", type: "text", fullWidth: true },
+        { name: "manualAddress", label: "Manual Address", type: "text", fullWidth: true },
+        { name: "city", label: "City", type: "text" },
+        { name: "state", label: "State", type: "text" },
+        { name: "country", label: "Country", type: "text" },
+        { name: "pincode", label: "Pincode", type: "text" },
       ],
     },
     {
       title: "Bank Details",
       fields: [
-        { name: "accountHolderName", label: "Account Holder Name", type: "text", readOnly: true },
-        { name: "bankName", label: "Bank Name", type: "text", readOnly: true },
-        { name: "accountNumber", label: "Account Number", type: "text", readOnly: true },
-        { name: "ifscCode", label: "IFSC Code", type: "text", readOnly: true },
+        { name: "accountHolderName", label: "Account Holder Name", type: "text" },
+        { name: "bankName", label: "Bank Name", type: "text" },
+        { name: "accountNumber", label: "Account Number", type: "text" },
+        { name: "ifscCode", label: "IFSC Code", type: "text" },
       ],
     },
     {
@@ -275,6 +348,11 @@ const Vendors = () => {
 
   return (
     <div className="page-content">
+      <DeleteModal
+        show={deleteModal}
+        onDeleteClick={handleDelete}
+        onCloseClick={() => setDeleteModal(false)}
+      />
       <h4><i className="bx bx-store-alt" /> Vendors</h4>
 
       <RecordTabs activeTab={activeTab} onChange={handleTabChange} />
@@ -333,7 +411,10 @@ const Vendors = () => {
           </>
         }
         isGlobalFilter={true}
-        isAddButton={false}
+        isAddButton={true}
+        handleClick={toggle}
+        buttonName="Add Vendor"
+        buttonClass="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2"
         isPagination={true}
         SearchPlaceholder="Search vendor..."
         tableClass="align-middle table-nowrap dt-responsive nowrap w-100 table-check dataTable no-footer dtr-inline"
